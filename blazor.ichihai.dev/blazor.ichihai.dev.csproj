@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LL2FERC" Version="1.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="EquationSolver">
-      <HintPath>..\..\EquationSolver\EquationSolver\bin\Debug\netstandard2.0\EquationSolver.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>dll\EquationSolver.dll</HintPath>
     </Reference>
   </ItemGroup>
 
