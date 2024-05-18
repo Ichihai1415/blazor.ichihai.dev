@@ -14,6 +14,7 @@
   <ItemGroup>
     <Reference Include="EquationSolver">
       <HintPath>..\..\EquationSolver\EquationSolver\bin\Debug\netstandard2.0\EquationSolver.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
 
