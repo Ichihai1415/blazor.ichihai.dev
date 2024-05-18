@@ -1,0 +1,37 @@
+﻿@page "/test"
+
+<PageTitle>Test</PageTitle>
+
+<h1>Test</h1>
+
+<input type="number" @bind="x1" />,
+<input type="number" @bind="x2" />,
+<input type="number" @bind="x3" />,
+<input type="number" @bind="x4" />
+
+<br />
+<button @onclick="Solve">solve</button>
+<br />
+
+<div>
+    <span>@eqst</span>-><span>@rts</span>
+
+</div>
+
+@code {
+    private string eqst = "";
+    private string rts = "";
+
+    private double x1 { get; set; } = 1;
+    private double x2 { get; set; } = 2;
+    private double x3 { get; set; } = 3;
+    private double x4 { get; set; } = 4;
+    private void Solve()
+    {
+        var eq = EquationSolver.CreateEquation([x1,x2,x3,x4]);
+        eqst = EquationSolver.Equation2String(eq);
+        var rtt = EquationSolver.Equat4_Formula(eq).OrderBy(x => x.Magnitude).ToArray();
+        rts = EquationSolver.ComplexArray2StringSimple(rtt, 5);
+    }
+
+}

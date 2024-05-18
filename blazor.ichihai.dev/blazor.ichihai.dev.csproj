@@ -11,4 +11,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="EquationSolver">
+      <HintPath>..\..\EquationSolver\EquationSolver\bin\Debug\netstandard2.0\EquationSolver.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
