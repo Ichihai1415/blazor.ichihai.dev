@@ -1,0 +1,30 @@
+﻿@using LL2FERC;
+@page "/ll2ferc-blazor"
+
+
+<PageTitle>LL2FERC in Blazor</PageTitle>
+
+lat:<input class="latlonInput" type="number" @bind="lat" />, 
+lon:<input class="latlonInput" type="number" @bind="lon" />
+
+<br />
+<br />
+<button class="get" @onclick="Get">get</button>
+<br />
+<br />
+<span>@output</span>
+
+
+@code{
+    private double lat { get; set; } = 0;
+    private double lon { get; set; } = 0;
+    private string output { get; set; } = "";
+
+    private void Get()
+    {
+        int code = LL2FERC.GetCode(lat, lon);
+        string name_ja = LL2FERC.GetName_ja(code);
+        string name_en = LL2FERC.GetName_enUS(code);
+        output = $"code:{code}  Name:{name_ja}({name_en})";
+    }
+}

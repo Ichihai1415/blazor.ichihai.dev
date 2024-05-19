@@ -1,0 +1,51 @@
+﻿@using static EquationSolver.EquationSolver
+@page "/equation-solver"
+
+<PageTitle>Equation Solver in Blazor</PageTitle>
+<head>
+    <!--<script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>-->
+</head>
+
+<h1>Equation Solver in Blazor</h1>
+
+x=
+<input class="rootInput" type="number" @bind="x1" />,
+<input class="rootInput" type="number" @bind="x2" />,
+<input class="rootInput" type="number" @bind="x3" />,
+<input class="rootInput" type="number" @bind="x4" />
+
+<br />
+<br />
+<button class="solve" @onclick="Solve">solve</button>
+<br />
+<br />
+
+
+
+<div>
+    <span>@eqst</span><span>@addt</span><span>@rts</span><span>@time</span>
+
+</div>
+
+@code {
+    private string eqst { get; set; } = "";
+    private string addt { get; set; } = "";
+    private string rts { get; set; } = "";
+    private string time { get; set; } = "";
+
+    private double x1 { get; set; } = 1;
+    private double x2 { get; set; } = 2;
+    private double x3 { get; set; } = 3;
+    private double x4 { get; set; } = 4;
+    private void Solve()
+    {
+        var stt = DateTime.Now;
+        var eq = CreateEquation([x1, x2, x3, x4]);
+        eqst = Equation2String(eq) + "=0";
+        addt = " -> x=";
+        var rtt = Equat4_Formula(eq).OrderBy(x => x.Magnitude).ToArray();
+        rts = ComplexArray2StringSimple(rtt, 5);
+        time = $" (total:{(DateTime.Now - stt).TotalMilliseconds}ms)";
+    }
+
+}

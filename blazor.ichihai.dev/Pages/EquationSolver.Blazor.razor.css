@@ -1,0 +1,12 @@
+﻿body {
+
+}
+
+.rootInput {
+    width: 50px;
+}
+
+button.solve {
+    width: 100px;
+    height: 50px;
+}
