@@ -10,3 +10,14 @@ button.solve {
     width: 100px;
     height: 50px;
 }
+
+input.is4 {
+    width: 30px;
+    height: 30px;
+    transform: translate(0, 10px);
+}
+
+span.is4text {
+    font-size: 150%;
+    margin-right: 10px;
+}

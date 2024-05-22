@@ -8,23 +8,38 @@
 
 <h1>Equation Solver in Blazor</h1>
 
-x=
-<input class="rootInput" type="number" @bind="x1" />,
-<input class="rootInput" type="number" @bind="x2" />,
-<input class="rootInput" type="number" @bind="x3" />,
-<input class="rootInput" type="number" @bind="x4" />
+<span class="is4text">※4次方程式を解く場合チェック→</span><input class="is4" type="checkbox" @bind="is4" />
+<br />
+<br />
+
+@if (!is4) {
+    <div class="eq_3">
+        3次:x=
+        <input class="rootInput" type="number" @bind="e3x1" />,
+        <input class="rootInput" type="number" @bind="e3x2" />,
+        <input class="rootInput" type="number" @bind="e3x3" />
+    </div>
+}
+@if (is4) {
+    <div class="eq_4">
+        4次:x=
+        <input class="rootInput" type="number" @bind="e4x1" />,
+        <input class="rootInput" type="number" @bind="e4x2" />,
+        <input class="rootInput" type="number" @bind="e4x3" />,
+        <input class="rootInput" type="number" @bind="e4x4" />
+    </div>
+}
+
+
 
 <br />
-<br />
 <button class="solve" @onclick="Solve">solve</button>
-<br />
 <br />
 
 
 
 <div>
     <span>@eqst</span><span>@addt</span><span>@rts</span><span>@time</span>
-
 </div>
 
 @code {
@@ -33,17 +48,24 @@ x=
     private string rts { get; set; } = "";
     private string time { get; set; } = "";
 
-    private double x1 { get; set; } = 1;
-    private double x2 { get; set; } = 2;
-    private double x3 { get; set; } = 3;
-    private double x4 { get; set; } = 4;
+
+    private double e3x1 { get; set; } = 1;
+    private double e3x2 { get; set; } = 2;
+    private double e3x3 { get; set; } = 3;
+
+    private double e4x1 { get; set; } = 1;
+    private double e4x2 { get; set; } = 2;
+    private double e4x3 { get; set; } = 3;
+    private double e4x4 { get; set; } = 4;
+
+    private bool is4 { get; set; } = false;
     private void Solve()
     {
         var stt = DateTime.Now;
-        var eq = CreateEquation([x1, x2, x3, x4]);
+        var eq = is4 ? CreateEquation([e4x1, e4x2, e4x3, e4x4]) : CreateEquation([e3x1, e3x2, e3x3]);
         eqst = Equation2String(eq) + "=0";
         addt = " -> x=";
-        var rtt = Equat4_Formula(eq).OrderBy(x => x.Magnitude).ToArray();
+        var rtt = is4 ? Equat4_Formula(eq).OrderBy(x => x.Magnitude).ToArray() : Equat3_Formula(eq).OrderBy(x => x.Magnitude).ToArray();
         rts = ComplexArray2StringSimple(rtt, 5);
         time = $" (total:{(DateTime.Now - stt).TotalMilliseconds}ms)";
     }
