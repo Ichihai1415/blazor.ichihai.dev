@@ -1,0 +1,176 @@
+﻿@page "/kaken"
+
+<PageTitle>課題研究数学班Webツール</PageTitle>
+<h1>課題研究数学班Webツール</h1>
+全然作ってません。<br /><br /><br />
+
+<p>
+    <select @bind="mode">
+        <option value="1">1. なんでも倍数判定法</option>
+        <option value="2">2. 四項間漸化式</option>
+        <option value="3">3. 高次方程式の解の公式</option>
+        <option value="4">4. ペンデュラムウェーブ</option>
+    </select>
+</p>
+<br /><br />
+
+<div class="change-area">
+    @if (mode == 1) 
+    {
+        <p>
+            <input type="number" @bind="numInput1" min="1" />
+            <span>が</span>
+            <input type="number" @bind="numInput2" min="1" />
+            <span>の倍数か</span>
+            <button @onclick="BaisuCal">計算！</button>
+            <span style="color:red;">一の位が0,2,4,5,6,8,0の場合不可能です。</span>
+        </p>
+        <p class="k">
+            k1=<span style="color:blue">@k1</span>, k2=<span style="color:blue">@k2</span>
+        </p>
+        <p>
+            <span>結果:</span>
+            @if(baisuError!="")
+            {
+                <span style="color:red">@baisuError</span>
+            }
+            else if (result == true)
+            {
+                <span style="color:blue">True!</span>
+            }
+            else if (result == false)
+            {
+                <span style="color:red">False...</span>
+            }
+            else
+            {
+                
+            }
+        </p>
+        <br /><br /><br />
+        <div>
+            <span>簡易計算機 </span>
+            <input type="number" @bind="s1" min="1" />
+            <span>x</span>
+            <input type="number" @bind="s2" min="1" />
+            <button @onclick="SimpleCal">＝</button>
+            <input type="number" @bind="sa" disabled/>
+            <span style="color:red;">@long.MaxValue を超えると値が不正になります</span>
+        </div>
+        <br /><br />
+        <div>
+            <span>素数チェック </span>
+            <input type="number" @bind="primeCk" min="2" />
+            <button @onclick="CheckPrime">は</button> 
+            <span>@isPrime</span>
+        </div>
+    }
+    else if (mode == 2)
+    {
+        <p style="color:red">未実装です。</p>
+    }
+    else if (mode == 3)
+    {
+        <NavLink href="equation-solver"><span style="color:blue">EquationSolver in Blazor</span></NavLink>
+    }
+    else if (mode == 4)
+    {
+        <p style="color:red">未実装です。</p>
+    }
+</div>
+
+
+@code {
+    public int mode { get; set; } = 1;
+
+    public long numInput1 { get; set; } = 1;
+    public long numInput2 { get; set; } = 1;
+
+    public long? k1 { get; set; } = null;
+    public long? k2 { get; set; } = null;
+
+    public bool? result = null;
+
+    public int baisuTryMax = 10000;
+    public string baisuError = "";
+
+    public long s1 = 1;
+    public long s2 = 1;
+    public long sa = 1;
+    public long primeCk = 2;
+    public string isPrime = "";
+
+    private void BaisuCal()
+    {
+        var num = numInput1;
+        var d = numInput2;
+
+        if (d == 0)
+        {
+            baisuError = "0で判定することはできません。";
+            return;
+        }
+
+
+        var process1 = num / 10;
+        var num_1 = Math.Abs(num - process1 * 10);
+        var process2 = process1 - num_1 * BaisuCal_GetK(d);
+        if (k2 == baisuTryMax)
+        {
+            baisuError = $"k2最高試行回数({baisuTryMax})に達しました。";
+            return;
+        }
+
+        baisuError = "";
+        result = process2 % d == 0;
+    }
+
+    private long BaisuCal_GetK(long d)
+    {
+        long k2_t;
+        for (k2_t = 1; k2_t < baisuTryMax; k2_t++)
+        {
+            if ((d * k2_t) % 10 == 1)
+                break;
+        }
+
+        var k1_t = (d * k2_t - 1) / 10;
+        k1 = k1_t;
+        k2 = k2_t;
+        return k1_t;
+    }
+
+    private void SimpleCal()
+    {
+        sa = s1 * s2;
+    }
+
+    private void CheckPrime()
+    {
+        if (primeCk == 1)
+        {
+            isPrime = "素数ではない";
+            return;
+        }
+        if (primeCk == 2)
+        {
+            isPrime = "素数";
+            return;
+        }
+        if (primeCk % 2 == 0)
+        {
+            isPrime = "素数ではない";
+            return;
+        }
+        for (int i = 3; i <= (int)Math.Sqrt(primeCk); i += 2)
+        {
+            if (primeCk % i == 0) 
+            {
+                isPrime = "素数ではない";
+                return;
+            }
+        }
+        isPrime = "素数";
+    }
+
+}

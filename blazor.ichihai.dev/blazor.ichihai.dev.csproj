@@ -22,4 +22,10 @@
     <Folder Include="wwwroot\js-copy\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Pages\Kaken.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+
 </Project>
