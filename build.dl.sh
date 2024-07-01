@@ -1,5 +1,5 @@
 #!/bin/sh
-# No download due to a problem with downloading. (previously in build.dl.sh)
+curl -sSL https://dot.net/v1/dotnet-install.sh > dotnet-install.sh
 chmod +x dotnet-install.sh
 ./dotnet-install.sh -c 8.0 -InstallDir ./dotnet
 ./dotnet/dotnet --version
