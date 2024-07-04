@@ -3,71 +3,344 @@
 
 <PageTitle>Equation Solver in Blazor</PageTitle>
 <head>
-    <!--<script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script id="MathJax-script"
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+            async></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text&display=swap');
+    </style>
 </head>
 
+<!--|----------HTML BODY START----------|-->
 <h1>EquationSolver in Blazor</h1>
 
-<span class="is4text">※4次方程式を解く場合チェック→</span><input class="is4" type="checkbox" @bind="is4" />
-<br />
-<br />
-
-@if (!is4) {
-    <div class="eq_3">
-        3次:x=
-        <input class="rootInput" type="number" @bind="e3x1" />,
-        <input class="rootInput" type="number" @bind="e3x2" />,
-        <input class="rootInput" type="number" @bind="e3x3" />
-    </div>
-}
-@if (is4) {
-    <div class="eq_4">
-        4次:x=
-        <input class="rootInput" type="number" @bind="e4x1" />,
-        <input class="rootInput" type="number" @bind="e4x2" />,
-        <input class="rootInput" type="number" @bind="e4x3" />,
-        <input class="rootInput" type="number" @bind="e4x4" />
-    </div>
-}
-
-
-
-<br />
-<button class="solve" @onclick="Solve">solve</button>
-<br />
-
-
-
+<p>
+    数式表示にMathJax (<a href="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</a>) 、
+    一部の数字の表示にSTIX Two Text (<a href="https://fonts.google.com/specimen/STIX+Two+Text">https://fonts.google.com/specimen/STIX+Two+Text</a>) を使用しています。
+</p>
+<li>内部計算は倍精度(64bit)浮動小数点数または複素数(実部虚部それぞれ)倍精度(64bit)浮動小数点数で行っているため誤差が発生します。</li>
+<li>しばらくしたら左のナビゲーションバーから削除します。</li>
+<p>
+    <h5>ソースコード</h5>
+    ライブラリ・ソフト: <a href="https://github.com/Ichihai1415/EquationSolver">https://github.com/Ichihai1415/EquationSolver</a>　<a href="https://wakatime.com/badge/user/018d266d-2f69-4179-ace8-f0017b3d0fc1/project/018d3549-a78c-40bb-8b31-fa4fb8ededb3"><img src="https://wakatime.com/badge/user/018d266d-2f69-4179-ace8-f0017b3d0fc1/project/018d3549-a78c-40bb-8b31-fa4fb8ededb3.svg" alt="wakatime"></a><br />
+    このページ: <a href="https://github.com/Ichihai1415/blazor.ichihai.dev/">https://github.com/Ichihai1415/blazor.ichihai.dev/</a> (blob/main/blazor.ichihai.dev/Pages/EquationSolver.Blazor.razor, blob/main/blazor.ichihai.dev/Pages/EquationSolver.Blazor.razor.css)
+</p>
 <div>
-    <span>@eqst</span><span>@addt</span><span>@rts</span><span>@time</span>
+    四捨五入する桁数:
+    <input class="calDigit"
+           type="number"
+           @bind="calDigit"
+           aria-label="calDigit"
+           min="1"
+           max="16" />(-1で無効)<br />
+</div>
+<div class="calMain">
+    <div class="cal-3">
+        <h2>&lt;３次方程式&gt;</h2>
+        <div class="cal-3-main">
+            <div class="cal-3-make">
+                <h4>解を指定して方程式作成/解く</h4>
+                <span>\((x-x_1)(x-x_2)(x-x_3)=0\)</span><br />
+                <span class="math-js">\(x_1=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq3_r1"
+                       aria-label="eq3_r1" /><br />
+                <span class="math-js">\(x_2=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq3_r2"
+                       aria-label="eq3_r2" /><br />
+                <span class="math-js">\(x_3=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq3_r3"
+                       aria-label="eq3_r3" /><br />
+                <p>
+                    <button @onclick="Cal3Make">作成</button>
+                    <button @onclick="Cal3MakeSolve">作成&解く</button>
+                </p>
+            </div>
+            <div class="cal-3-solve">
+                <h4>係数を指定して解く</h4>
+                <span>\(ax^3+bx^2+cx+d=0\qquad(a\neq0)\)</span><br />
+                <span class="math-js">\(a=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq3_c1"
+                       aria-label="eq3_c1" /><br />
+                <span class="math-js" style="padding-left: 2px">\(b=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq3_c2"
+                       aria-label="eq3_c2" /><br />
+                <span class="math-js" style="padding-left: 2px">\(c=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq3_c3"
+                       aria-label="eq3_c3" /><br />
+                <span class="math-js">\(d=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq3_c4"
+                       aria-label="eq3_c4" /><br />
+                <p>
+                    <button @onclick="Cal3Solve">解く</button>
+                </p>
+            </div>
+            <div class="cal-3-ans">
+                <p>
+                    <span class="math-js">\(x=\)</span><span class="math">
+                        @eq3_ans
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="cal-4">
+        <h2>&lt;４次方程式&gt;</h2>
+        <div class="cal-4-main">
+            <div class="cal-4-make">
+                <h4>解を指定して方程式作成/解く</h4>
+                <span>\((x-x_1)(x-x_2)(x-x_3)=0\)</span><br />
+                <span class="math-js">\(x_1=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq4_r1"
+                       aria-label="eq4_r1" /><br />
+                <span class="math-js">\(x_2=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq4_r2"
+                       aria-label="eq4_r2" /><br />
+                <span class="math-js">\(x_3=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq4_r3"
+                       aria-label="eq4_r3" /><br />
+                <span class="math-js">\(x_4=\)</span>
+                <input class="rootInput"
+                       type="number"
+                       @bind="eq4_r4"
+                       aria-label="eq4_r4" /><br />
+                <p>
+                    <button @onclick="Cal4Make">作成</button>
+                    <button @onclick="Cal4MakeSolve">作成&解く</button>
+                </p>
+            </div>
+            <div class="cal-4-solve">
+                <h4>係数を指定して解く</h4>
+                <span>\(ax^3+bx^2+cx+d=0\qquad(a\neq0)\)</span><br />
+                <span class="math-js">\(a=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq4_c1"
+                       aria-label="eq4_c1" /><br />
+                <span class="math-js" style="padding-left: 2px">\(b=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq4_c2"
+                       aria-label="eq4_c2" /><br />
+                <span class="math-js" style="padding-left: 2px">\(c=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq4_c3"
+                       aria-label="eq4_c3" /><br />
+                <span class="math-js">\(d=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq4_c4"
+                       aria-label="eq4_c4" /><br />
+                <span class="math-js" style="padding-left: 1px">\(e=\)</span>
+                <input class="coefficientInput"
+                       type="number"
+                       @bind="eq4_c5"
+                       aria-label="eq4_c5" /><br />
+                <p>
+                    <button @onclick="Cal4Solve">解く</button>
+                </p>
+            </div>
+            <div class="cal-4-ans">
+                <p>
+                    <span class="math-js">\(x=\)</span><span class="math">
+                        @eq4_ans
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="omake1">
+    <h4>おまけ1(公式)</h4>
+    <h5>３次方程式</h5>
+    お待ちください
+    <h5>４次方程式</h5>
+    お待ちください
+
+    <br />
+</div>
+<div class="omake2">
+    <h4>おまけ2(展開式・解と係数の関係)</h4>
+    <span>横に広くデザインが崩れるため見たい場合▼を押して展開して下さい。生成に<a href="https://github.com/Ichihai1415/EquationSolver/tree/main/EquationSolver.SymbolExpansion">EquationSolver.SymbolExpansion</a>を使用しました。</span>
+    <details>
+        <summary>３次方程式</summary>
+        <span>\((x-x_1)(x-x_2)(x-x_3)=0\)</span><br /><br />
+        <span>
+            \(x^3\)<br />
+            \(-(x_1+x_2+x_3)x^2\)<br />
+            \(+(x_1x_2+x_2x_3+x_3x_1)x\)<br />
+            \(-(x_1x_2x_3)\)<br />
+            \(=0\)<br />
+        </span><br />
+        <span>
+            よって解と係数の関係は、<br />
+            \(x_1+x_2+x_3=-\frac{b}{a},\)<br />
+            \(x_1x_2+x_2x_3+x_3x_1=\frac{c}{a},\)<br />
+            \(x_1x_2x_3=-\frac{d}{a}\)<br />
+        </span>
+    </details>
+    <details>
+        <summary>４次方程式</summary>
+        <span>\((x-x_1)(x-x_2)(x-x_3)(x-x_4)=0\)</span><br /><br />
+        <span>
+            \(x^4-(x_1+x_2+x_3+x_4)x^3\)<br />
+            \(+(x_1x_2+x_1x_3+x_1x_4+x_2x_3+x_2x_4+x_3x_4)x^2\)<br />
+            \(-(x_1x_2x_3+x_1x_2x_4+x_1x_3x_4+x_2x_3x_4)x\)<br />
+            \(+(x_1x_2x_3x_4)\)<br />
+            \(=0\)<br />
+        </span><br />
+        <span>
+            よって解と係数の関係は、<br />
+            \(x_1+x_2+x_3+x_4=-\frac{b}{a},\)<br />
+            \(x_1x_2+x_1x_3+x_1x_4+x_2x_3+x_2x_4+x_3x_4=\frac{c}{a},\)<br />
+            \(x_1x_2x_3+x_1x_2x_4+x_1x_3x_4+x_2x_3x_4=-\frac{d}{a},\)<br />
+            \(x_1x_2x_3x_4=-\frac{e}{a}\)<br />
+        </span>
+    </details>
+    <details>
+        <summary>５次方程式</summary>
+        <span>\((x-x_1)(x-x_2)(x-x_3)(x-x_4)(x-x_5)=0\)</span><br /><br />
+        <span>
+            \(x^5\)<br />
+            \(-(x_1+x_2+x_3+x_4+x_5)x^4\)<br />
+            \(+(x_1x_2+x_1x_3+x_1x_4+x_1x_5+x_2x_3+x_2x_4+x_2x_5+x_3x_4+x_3x_5+x_4x_5)x^3\)<br />
+            \(-(x_1x_2x_3+x_1x_2x_4+x_1x_2x_5+x_1x_3x_4+x_1x_3x_5+x_1x_4x_5+x_2x_3x_4+x_2x_3x_5+x_2x_4x_5+x_3x_4x_5)x^2\)<br />
+            \(+(x_1x_2x_3x_4+x_1x_2x_3x_5+x_1x_2x_4x_5+x_1x_3x_4x_5+x_2x_3x_4x_5)x\)<br />
+            \(-(x_1x_2x_3x_4x_5)\)<br />
+            \(=0\)<br />
+        </span><br />
+        <span>
+            よって解と係数の関係は、<br />
+            \(x_1+x_2+x_3+x_4+x_5=-\frac{b}{a}\)<br />
+            \(x_1x_2+x_1x_3+x_1x_4+x_1x_5+x_2x_3+x_2x_4+x_2x_5+x_3x_4+x_3x_5+x_4x_5=\frac{c}{a},\)<br />
+            \(x_1x_2x_3+x_1x_2x_4+x_1x_2x_5+x_1x_3x_4+x_1x_3x_5+x_1x_4x_5+x_2x_3x_4+x_2x_3x_5+x_2x_4x_5+x_3x_4x_5=-\frac{d}{a},\)<br />
+            \(x_1x_2x_3x_4+x_1x_2x_3x_5+x_1x_2x_4x_5+x_1x_3x_4x_5+x_2x_3x_4x_5=\frac{e}{a},\)<br />
+            \(x_1x_2x_3x_4x_5=-\frac{f}{a}\)<br />
+        </span>
+    </details>
+    <details>
+        <summary>１０次方程式</summary>
+        <span>\((x-x_1)(x-x_2)(x-x_3)(x-x_4)(x-x_5)(x-x_6)(x-x_7)(x-x_8)(x-x_9)(x-x_10)=0\)</span><br />
+        <span>
+            \(x^{10}\)<br />
+            \(-(x_1+x_2+x_3+x_4+x_5+x_6+x_7+x_8+x_9+x_{10})x^9\)<br />
+            \(+(x_1x_2+x_1x_3+x_1x_4+x_1x_5+x_1x_6+x_1x_7+x_1x_8+x_1x_9+x_1x_{10}+x_2x_3+x_2x_4+x_2x_5+x_2x_6+x_2x_7+x_2x_8+x_2x_9+x_2x_{10}+x_3x_4+x_3x_5+x_3x_6+x_3x_7+x_3x_8+x_3x_9+x_3x_{10}+x_4x_5+x_4x_6+x_4x_7+x_4x_8+x_4x_9+x_4x_{10}+x_5x_6+x_5x_7+x_5x_8+x_5x_9+x_5x_{10}+x_6x_7+x_6x_8+x_6x_9+x_6x_{10}+x_7x_8+x_7x_9+x_7x_{10}+x_8x_9+x_8x_{10}+x_9x_{10})x^8\)<br />
+            \(-(x_1x_2x_3+x_1x_2x_4+x_1x_2x_5+x_1x_2x_6+x_1x_2x_7+x_1x_2x_8+x_1x_2x_9+x_1x_2x_{10}+x_1x_3x_4+x_1x_3x_5+x_1x_3x_6+x_1x_3x_7+x_1x_3x_8+x_1x_3x_9+x_1x_3x_{10}+x_1x_4x_5+x_1x_4x_6+x_1x_4x_7+x_1x_4x_8+x_1x_4x_9+x_1x_4x_{10}+x_1x_5x_6+x_1x_5x_7+x_1x_5x_8+x_1x_5x_9+x_1x_5x_{10}+x_1x_6x_7+x_1x_6x_8+x_1x_6x_9+x_1x_6x_{10}+x_1x_7x_8+x_1x_7x_9+x_1x_7x_{10}+x_1x_8x_9+x_1x_8x_{10}+x_1x_9x_{10}+x_2x_3x_4+x_2x_3x_5+x_2x_3x_6+x_2x_3x_7+x_2x_3x_8+x_2x_3x_9+x_2x_3x_{10}+x_2x_4x_5+x_2x_4x_6+x_2x_4x_7+x_2x_4x_8+x_2x_4x_9+x_2x_4x_{10}+x_2x_5x_6+x_2x_5x_7+x_2x_5x_8+x_2x_5x_9+x_2x_5x_{10}+x_2x_6x_7+x_2x_6x_8+x_2x_6x_9+x_2x_6x_{10}+x_2x_7x_8+x_2x_7x_9+x_2x_7x_{10}+x_2x_8x_9+x_2x_8x_{10}+x_2x_9x_{10}+x_3x_4x_5+x_3x_4x_6+x_3x_4x_7+x_3x_4x_8+x_3x_4x_9+x_3x_4x_{10}+x_3x_5x_6+x_3x_5x_7+x_3x_5x_8+x_3x_5x_9+x_3x_5x_{10}+x_3x_6x_7+x_3x_6x_8+x_3x_6x_9+x_3x_6x_{10}+x_3x_7x_8+x_3x_7x_9+x_3x_7x_{10}+x_3x_8x_9+x_3x_8x_{10}+x_3x_9x_{10}+x_4x_5x_6+x_4x_5x_7+x_4x_5x_8+x_4x_5x_9+x_4x_5x_{10}+x_4x_6x_7+x_4x_6x_8+x_4x_6x_9+x_4x_6x_{10}+x_4x_7x_8+x_4x_7x_9+x_4x_7x_{10}+x_4x_8x_9+x_4x_8x_{10}+x_4x_9x_{10}+x_5x_6x_7+x_5x_6x_8+x_5x_6x_9+x_5x_6x_{10}+x_5x_7x_8+x_5x_7x_9+x_5x_7x_{10}+x_5x_8x_9+x_5x_8x_{10}+x_5x_9x_{10}+x_6x_7x_8+x_6x_7x_9+x_6x_7x_{10}+x_6x_8x_9+x_6x_8x_{10}+x_6x_9x_{10}+x_7x_8x_9+x_7x_8x_{10}+x_7x_9x_{10}+x_8x_9x_{10})x^7\)<br />
+            \(+(x_1x_2x_3x_4+x_1x_2x_3x_5+x_1x_2x_3x_6+x_1x_2x_3x_7+x_1x_2x_3x_8+x_1x_2x_3x_9+x_1x_2x_3x_{10}+x_1x_2x_4x_5+x_1x_2x_4x_6+x_1x_2x_4x_7+x_1x_2x_4x_8+x_1x_2x_4x_9+x_1x_2x_4x_{10}+x_1x_2x_5x_6+x_1x_2x_5x_7+x_1x_2x_5x_8+x_1x_2x_5x_9+x_1x_2x_5x_{10}+x_1x_2x_6x_7+x_1x_2x_6x_8+x_1x_2x_6x_9+x_1x_2x_6x_{10}+x_1x_2x_7x_8+x_1x_2x_7x_9+x_1x_2x_7x_{10}+x_1x_2x_8x_9+x_1x_2x_8x_{10}+x_1x_2x_9x_{10}+x_1x_3x_4x_5+x_1x_3x_4x_6+x_1x_3x_4x_7+x_1x_3x_4x_8+x_1x_3x_4x_9+x_1x_3x_4x_{10}+x_1x_3x_5x_6+x_1x_3x_5x_7+x_1x_3x_5x_8+x_1x_3x_5x_9+x_1x_3x_5x_{10}+x_1x_3x_6x_7+x_1x_3x_6x_8+x_1x_3x_6x_9+x_1x_3x_6x_{10}+x_1x_3x_7x_8+x_1x_3x_7x_9+x_1x_3x_7x_{10}+x_1x_3x_8x_9+x_1x_3x_8x_{10}+x_1x_3x_9x_{10}+x_1x_4x_5x_6+x_1x_4x_5x_7+x_1x_4x_5x_8+x_1x_4x_5x_9+x_1x_4x_5x_{10}+x_1x_4x_6x_7+x_1x_4x_6x_8+x_1x_4x_6x_9+x_1x_4x_6x_{10}+x_1x_4x_7x_8+x_1x_4x_7x_9+x_1x_4x_7x_{10}+x_1x_4x_8x_9+x_1x_4x_8x_{10}+x_1x_4x_9x_{10}+x_1x_5x_6x_7+x_1x_5x_6x_8+x_1x_5x_6x_9+x_1x_5x_6x_{10}+x_1x_5x_7x_8+x_1x_5x_7x_9+x_1x_5x_7x_{10}+x_1x_5x_8x_9+x_1x_5x_8x_{10}+x_1x_5x_9x_{10}+x_1x_6x_7x_8+x_1x_6x_7x_9+x_1x_6x_7x_{10}+x_1x_6x_8x_9+x_1x_6x_8x_{10}+x_1x_6x_9x_{10}+x_1x_7x_8x_9+x_1x_7x_8x_{10}+x_1x_7x_9x_{10}+x_1x_8x_9x_{10}+x_2x_3x_4x_5+x_2x_3x_4x_6+x_2x_3x_4x_7+x_2x_3x_4x_8+x_2x_3x_4x_9+x_2x_3x_4x_{10}+x_2x_3x_5x_6+x_2x_3x_5x_7+x_2x_3x_5x_8+x_2x_3x_5x_9+x_2x_3x_5x_{10}+x_2x_3x_6x_7+x_2x_3x_6x_8+x_2x_3x_6x_9+x_2x_3x_6x_{10}+x_2x_3x_7x_8+x_2x_3x_7x_9+x_2x_3x_7x_{10}+x_2x_3x_8x_9+x_2x_3x_8x_{10}+x_2x_3x_9x_{10}+x_2x_4x_5x_6+x_2x_4x_5x_7+x_2x_4x_5x_8+x_2x_4x_5x_9+x_2x_4x_5x_{10}+x_2x_4x_6x_7+x_2x_4x_6x_8+x_2x_4x_6x_9+x_2x_4x_6x_{10}+x_2x_4x_7x_8+x_2x_4x_7x_9+x_2x_4x_7x_{10}+x_2x_4x_8x_9+x_2x_4x_8x_{10}+x_2x_4x_9x_{10}+x_2x_5x_6x_7+x_2x_5x_6x_8+x_2x_5x_6x_9+x_2x_5x_6x_{10}+x_2x_5x_7x_8+x_2x_5x_7x_9+x_2x_5x_7x_{10}+x_2x_5x_8x_9+x_2x_5x_8x_{10}+x_2x_5x_9x_{10}+x_2x_6x_7x_8+x_2x_6x_7x_9+x_2x_6x_7x_{10}+x_2x_6x_8x_9+x_2x_6x_8x_{10}+x_2x_6x_9x_{10}+x_2x_7x_8x_9+x_2x_7x_8x_{10}+x_2x_7x_9x_{10}+x_2x_8x_9x_{10}+x_3x_4x_5x_6+x_3x_4x_5x_7+x_3x_4x_5x_8+x_3x_4x_5x_9+x_3x_4x_5x_{10}+x_3x_4x_6x_7+x_3x_4x_6x_8+x_3x_4x_6x_9+x_3x_4x_6x_{10}+x_3x_4x_7x_8+x_3x_4x_7x_9+x_3x_4x_7x_{10}+x_3x_4x_8x_9+x_3x_4x_8x_{10}+x_3x_4x_9x_{10}+x_3x_5x_6x_7+x_3x_5x_6x_8+x_3x_5x_6x_9+x_3x_5x_6x_{10}+x_3x_5x_7x_8+x_3x_5x_7x_9+x_3x_5x_7x_{10}+x_3x_5x_8x_9+x_3x_5x_8x_{10}+x_3x_5x_9x_{10}+x_3x_6x_7x_8+x_3x_6x_7x_9+x_3x_6x_7x_{10}+x_3x_6x_8x_9+x_3x_6x_8x_{10}+x_3x_6x_9x_{10}+x_3x_7x_8x_9+x_3x_7x_8x_{10}+x_3x_7x_9x_{10}+x_3x_8x_9x_{10}+x_4x_5x_6x_7+x_4x_5x_6x_8+x_4x_5x_6x_9+x_4x_5x_6x_{10}+x_4x_5x_7x_8+x_4x_5x_7x_9+x_4x_5x_7x_{10}+x_4x_5x_8x_9+x_4x_5x_8x_{10}+x_4x_5x_9x_{10}+x_4x_6x_7x_8+x_4x_6x_7x_9+x_4x_6x_7x_{10}+x_4x_6x_8x_9+x_4x_6x_8x_{10}+x_4x_6x_9x_{10}+x_4x_7x_8x_9+x_4x_7x_8x_{10}+x_4x_7x_9x_{10}+x_4x_8x_9x_{10}+x_5x_6x_7x_8+x_5x_6x_7x_9+x_5x_6x_7x_{10}+x_5x_6x_8x_9+x_5x_6x_8x_{10}+x_5x_6x_9x_{10}+x_5x_7x_8x_9+x_5x_7x_8x_{10}+x_5x_7x_9x_{10}+x_5x_8x_9x_{10}+x_6x_7x_8x_9+x_6x_7x_8x_{10}+x_6x_7x_9x_{10}+x_6x_8x_9x_{10}+x_7x_8x_9x_{10})x^6\)<br />
+            \(-(x_1x_2x_3x_4x_5+x_1x_2x_3x_4x_6+x_1x_2x_3x_4x_7+x_1x_2x_3x_4x_8+x_1x_2x_3x_4x_9+x_1x_2x_3x_4x_{10}+x_1x_2x_3x_5x_6+x_1x_2x_3x_5x_7+x_1x_2x_3x_5x_8+x_1x_2x_3x_5x_9+x_1x_2x_3x_5x_{10}+x_1x_2x_3x_6x_7+x_1x_2x_3x_6x_8+x_1x_2x_3x_6x_9+x_1x_2x_3x_6x_{10}+x_1x_2x_3x_7x_8+x_1x_2x_3x_7x_9+x_1x_2x_3x_7x_{10}+x_1x_2x_3x_8x_9+x_1x_2x_3x_8x_{10}+x_1x_2x_3x_9x_{10}+x_1x_2x_4x_5x_6+x_1x_2x_4x_5x_7+x_1x_2x_4x_5x_8+x_1x_2x_4x_5x_9+x_1x_2x_4x_5x_{10}+x_1x_2x_4x_6x_7+x_1x_2x_4x_6x_8+x_1x_2x_4x_6x_9+x_1x_2x_4x_6x_{10}+x_1x_2x_4x_7x_8+x_1x_2x_4x_7x_9+x_1x_2x_4x_7x_{10}+x_1x_2x_4x_8x_9+x_1x_2x_4x_8x_{10}+x_1x_2x_4x_9x_{10}+x_1x_2x_5x_6x_7+x_1x_2x_5x_6x_8+x_1x_2x_5x_6x_9+x_1x_2x_5x_6x_{10}+x_1x_2x_5x_7x_8+x_1x_2x_5x_7x_9+x_1x_2x_5x_7x_{10}+x_1x_2x_5x_8x_9+x_1x_2x_5x_8x_{10}+x_1x_2x_5x_9x_{10}+x_1x_2x_6x_7x_8+x_1x_2x_6x_7x_9+x_1x_2x_6x_7x_{10}+x_1x_2x_6x_8x_9+x_1x_2x_6x_8x_{10}+x_1x_2x_6x_9x_{10}+x_1x_2x_7x_8x_9+x_1x_2x_7x_8x_{10}+x_1x_2x_7x_9x_{10}+x_1x_2x_8x_9x_{10}+x_1x_3x_4x_5x_6+x_1x_3x_4x_5x_7+x_1x_3x_4x_5x_8+x_1x_3x_4x_5x_9+x_1x_3x_4x_5x_{10}+x_1x_3x_4x_6x_7+x_1x_3x_4x_6x_8+x_1x_3x_4x_6x_9+x_1x_3x_4x_6x_{10}+x_1x_3x_4x_7x_8+x_1x_3x_4x_7x_9+x_1x_3x_4x_7x_{10}+x_1x_3x_4x_8x_9+x_1x_3x_4x_8x_{10}+x_1x_3x_4x_9x_{10}+x_1x_3x_5x_6x_7+x_1x_3x_5x_6x_8+x_1x_3x_5x_6x_9+x_1x_3x_5x_6x_{10}+x_1x_3x_5x_7x_8+x_1x_3x_5x_7x_9+x_1x_3x_5x_7x_{10}+x_1x_3x_5x_8x_9+x_1x_3x_5x_8x_{10}+x_1x_3x_5x_9x_{10}+x_1x_3x_6x_7x_8+x_1x_3x_6x_7x_9+x_1x_3x_6x_7x_{10}+x_1x_3x_6x_8x_9+x_1x_3x_6x_8x_{10}+x_1x_3x_6x_9x_{10}+x_1x_3x_7x_8x_9+x_1x_3x_7x_8x_{10}+x_1x_3x_7x_9x_{10}+x_1x_3x_8x_9x_{10}+x_1x_4x_5x_6x_7+x_1x_4x_5x_6x_8+x_1x_4x_5x_6x_9+x_1x_4x_5x_6x_{10}+x_1x_4x_5x_7x_8+x_1x_4x_5x_7x_9+x_1x_4x_5x_7x_{10}+x_1x_4x_5x_8x_9+x_1x_4x_5x_8x_{10}+x_1x_4x_5x_9x_{10}+x_1x_4x_6x_7x_8+x_1x_4x_6x_7x_9+x_1x_4x_6x_7x_{10}+x_1x_4x_6x_8x_9+x_1x_4x_6x_8x_{10}+x_1x_4x_6x_9x_{10}+x_1x_4x_7x_8x_9+x_1x_4x_7x_8x_{10}+x_1x_4x_7x_9x_{10}+x_1x_4x_8x_9x_{10}+x_1x_5x_6x_7x_8+x_1x_5x_6x_7x_9+x_1x_5x_6x_7x_{10}+x_1x_5x_6x_8x_9+x_1x_5x_6x_8x_{10}+x_1x_5x_6x_9x_{10}+x_1x_5x_7x_8x_9+x_1x_5x_7x_8x_{10}+x_1x_5x_7x_9x_{10}+x_1x_5x_8x_9x_{10}+x_1x_6x_7x_8x_9+x_1x_6x_7x_8x_{10}+x_1x_6x_7x_9x_{10}+x_1x_6x_8x_9x_{10}+x_1x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6+x_2x_3x_4x_5x_7+x_2x_3x_4x_5x_8+x_2x_3x_4x_5x_9+x_2x_3x_4x_5x_{10}+x_2x_3x_4x_6x_7+x_2x_3x_4x_6x_8+x_2x_3x_4x_6x_9+x_2x_3x_4x_6x_{10}+x_2x_3x_4x_7x_8+x_2x_3x_4x_7x_9+x_2x_3x_4x_7x_{10}+x_2x_3x_4x_8x_9+x_2x_3x_4x_8x_{10}+x_2x_3x_4x_9x_{10}+x_2x_3x_5x_6x_7+x_2x_3x_5x_6x_8+x_2x_3x_5x_6x_9+x_2x_3x_5x_6x_{10}+x_2x_3x_5x_7x_8+x_2x_3x_5x_7x_9+x_2x_3x_5x_7x_{10}+x_2x_3x_5x_8x_9+x_2x_3x_5x_8x_{10}+x_2x_3x_5x_9x_{10}+x_2x_3x_6x_7x_8+x_2x_3x_6x_7x_9+x_2x_3x_6x_7x_{10}+x_2x_3x_6x_8x_9+x_2x_3x_6x_8x_{10}+x_2x_3x_6x_9x_{10}+x_2x_3x_7x_8x_9+x_2x_3x_7x_8x_{10}+x_2x_3x_7x_9x_{10}+x_2x_3x_8x_9x_{10}+x_2x_4x_5x_6x_7+x_2x_4x_5x_6x_8+x_2x_4x_5x_6x_9+x_2x_4x_5x_6x_{10}+x_2x_4x_5x_7x_8+x_2x_4x_5x_7x_9+x_2x_4x_5x_7x_{10}+x_2x_4x_5x_8x_9+x_2x_4x_5x_8x_{10}+x_2x_4x_5x_9x_{10}+x_2x_4x_6x_7x_8+x_2x_4x_6x_7x_9+x_2x_4x_6x_7x_{10}+x_2x_4x_6x_8x_9+x_2x_4x_6x_8x_{10}+x_2x_4x_6x_9x_{10}+x_2x_4x_7x_8x_9+x_2x_4x_7x_8x_{10}+x_2x_4x_7x_9x_{10}+x_2x_4x_8x_9x_{10}+x_2x_5x_6x_7x_8+x_2x_5x_6x_7x_9+x_2x_5x_6x_7x_{10}+x_2x_5x_6x_8x_9+x_2x_5x_6x_8x_{10}+x_2x_5x_6x_9x_{10}+x_2x_5x_7x_8x_9+x_2x_5x_7x_8x_{10}+x_2x_5x_7x_9x_{10}+x_2x_5x_8x_9x_{10}+x_2x_6x_7x_8x_9+x_2x_6x_7x_8x_{10}+x_2x_6x_7x_9x_{10}+x_2x_6x_8x_9x_{10}+x_2x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7+x_3x_4x_5x_6x_8+x_3x_4x_5x_6x_9+x_3x_4x_5x_6x_{10}+x_3x_4x_5x_7x_8+x_3x_4x_5x_7x_9+x_3x_4x_5x_7x_{10}+x_3x_4x_5x_8x_9+x_3x_4x_5x_8x_{10}+x_3x_4x_5x_9x_{10}+x_3x_4x_6x_7x_8+x_3x_4x_6x_7x_9+x_3x_4x_6x_7x_{10}+x_3x_4x_6x_8x_9+x_3x_4x_6x_8x_{10}+x_3x_4x_6x_9x_{10}+x_3x_4x_7x_8x_9+x_3x_4x_7x_8x_{10}+x_3x_4x_7x_9x_{10}+x_3x_4x_8x_9x_{10}+x_3x_5x_6x_7x_8+x_3x_5x_6x_7x_9+x_3x_5x_6x_7x_{10}+x_3x_5x_6x_8x_9+x_3x_5x_6x_8x_{10}+x_3x_5x_6x_9x_{10}+x_3x_5x_7x_8x_9+x_3x_5x_7x_8x_{10}+x_3x_5x_7x_9x_{10}+x_3x_5x_8x_9x_{10}+x_3x_6x_7x_8x_9+x_3x_6x_7x_8x_{10}+x_3x_6x_7x_9x_{10}+x_3x_6x_8x_9x_{10}+x_3x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8+x_4x_5x_6x_7x_9+x_4x_5x_6x_7x_{10}+x_4x_5x_6x_8x_9+x_4x_5x_6x_8x_{10}+x_4x_5x_6x_9x_{10}+x_4x_5x_7x_8x_9+x_4x_5x_7x_8x_{10}+x_4x_5x_7x_9x_{10}+x_4x_5x_8x_9x_{10}+x_4x_6x_7x_8x_9+x_4x_6x_7x_8x_{10}+x_4x_6x_7x_9x_{10}+x_4x_6x_8x_9x_{10}+x_4x_7x_8x_9x_{10}+x_5x_6x_7x_8x_9+x_5x_6x_7x_8x_{10}+x_5x_6x_7x_9x_{10}+x_5x_6x_8x_9x_{10}+x_5x_7x_8x_9x_{10}+x_6x_7x_8x_9x_{10})x^5\)<br />
+            \(+(x_1x_2x_3x_4x_5x_6+x_1x_2x_3x_4x_5x_7+x_1x_2x_3x_4x_5x_8+x_1x_2x_3x_4x_5x_9+x_1x_2x_3x_4x_5x_{10}+x_1x_2x_3x_4x_6x_7+x_1x_2x_3x_4x_6x_8+x_1x_2x_3x_4x_6x_9+x_1x_2x_3x_4x_6x_{10}+x_1x_2x_3x_4x_7x_8+x_1x_2x_3x_4x_7x_9+x_1x_2x_3x_4x_7x_{10}+x_1x_2x_3x_4x_8x_9+x_1x_2x_3x_4x_8x_{10}+x_1x_2x_3x_4x_9x_{10}+x_1x_2x_3x_5x_6x_7+x_1x_2x_3x_5x_6x_8+x_1x_2x_3x_5x_6x_9+x_1x_2x_3x_5x_6x_{10}+x_1x_2x_3x_5x_7x_8+x_1x_2x_3x_5x_7x_9+x_1x_2x_3x_5x_7x_{10}+x_1x_2x_3x_5x_8x_9+x_1x_2x_3x_5x_8x_{10}+x_1x_2x_3x_5x_9x_{10}+x_1x_2x_3x_6x_7x_8+x_1x_2x_3x_6x_7x_9+x_1x_2x_3x_6x_7x_{10}+x_1x_2x_3x_6x_8x_9+x_1x_2x_3x_6x_8x_{10}+x_1x_2x_3x_6x_9x_{10}+x_1x_2x_3x_7x_8x_9+x_1x_2x_3x_7x_8x_{10}+x_1x_2x_3x_7x_9x_{10}+x_1x_2x_3x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7+x_1x_2x_4x_5x_6x_8+x_1x_2x_4x_5x_6x_9+x_1x_2x_4x_5x_6x_{10}+x_1x_2x_4x_5x_7x_8+x_1x_2x_4x_5x_7x_9+x_1x_2x_4x_5x_7x_{10}+x_1x_2x_4x_5x_8x_9+x_1x_2x_4x_5x_8x_{10}+x_1x_2x_4x_5x_9x_{10}+x_1x_2x_4x_6x_7x_8+x_1x_2x_4x_6x_7x_9+x_1x_2x_4x_6x_7x_{10}+x_1x_2x_4x_6x_8x_9+x_1x_2x_4x_6x_8x_{10}+x_1x_2x_4x_6x_9x_{10}+x_1x_2x_4x_7x_8x_9+x_1x_2x_4x_7x_8x_{10}+x_1x_2x_4x_7x_9x_{10}+x_1x_2x_4x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8+x_1x_2x_5x_6x_7x_9+x_1x_2x_5x_6x_7x_{10}+x_1x_2x_5x_6x_8x_9+x_1x_2x_5x_6x_8x_{10}+x_1x_2x_5x_6x_9x_{10}+x_1x_2x_5x_7x_8x_9+x_1x_2x_5x_7x_8x_{10}+x_1x_2x_5x_7x_9x_{10}+x_1x_2x_5x_8x_9x_{10}+x_1x_2x_6x_7x_8x_9+x_1x_2x_6x_7x_8x_{10}+x_1x_2x_6x_7x_9x_{10}+x_1x_2x_6x_8x_9x_{10}+x_1x_2x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7+x_1x_3x_4x_5x_6x_8+x_1x_3x_4x_5x_6x_9+x_1x_3x_4x_5x_6x_{10}+x_1x_3x_4x_5x_7x_8+x_1x_3x_4x_5x_7x_9+x_1x_3x_4x_5x_7x_{10}+x_1x_3x_4x_5x_8x_9+x_1x_3x_4x_5x_8x_{10}+x_1x_3x_4x_5x_9x_{10}+x_1x_3x_4x_6x_7x_8+x_1x_3x_4x_6x_7x_9+x_1x_3x_4x_6x_7x_{10}+x_1x_3x_4x_6x_8x_9+x_1x_3x_4x_6x_8x_{10}+x_1x_3x_4x_6x_9x_{10}+x_1x_3x_4x_7x_8x_9+x_1x_3x_4x_7x_8x_{10}+x_1x_3x_4x_7x_9x_{10}+x_1x_3x_4x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8+x_1x_3x_5x_6x_7x_9+x_1x_3x_5x_6x_7x_{10}+x_1x_3x_5x_6x_8x_9+x_1x_3x_5x_6x_8x_{10}+x_1x_3x_5x_6x_9x_{10}+x_1x_3x_5x_7x_8x_9+x_1x_3x_5x_7x_8x_{10}+x_1x_3x_5x_7x_9x_{10}+x_1x_3x_5x_8x_9x_{10}+x_1x_3x_6x_7x_8x_9+x_1x_3x_6x_7x_8x_{10}+x_1x_3x_6x_7x_9x_{10}+x_1x_3x_6x_8x_9x_{10}+x_1x_3x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8+x_1x_4x_5x_6x_7x_9+x_1x_4x_5x_6x_7x_{10}+x_1x_4x_5x_6x_8x_9+x_1x_4x_5x_6x_8x_{10}+x_1x_4x_5x_6x_9x_{10}+x_1x_4x_5x_7x_8x_9+x_1x_4x_5x_7x_8x_{10}+x_1x_4x_5x_7x_9x_{10}+x_1x_4x_5x_8x_9x_{10}+x_1x_4x_6x_7x_8x_9+x_1x_4x_6x_7x_8x_{10}+x_1x_4x_6x_7x_9x_{10}+x_1x_4x_6x_8x_9x_{10}+x_1x_4x_7x_8x_9x_{10}+x_1x_5x_6x_7x_8x_9+x_1x_5x_6x_7x_8x_{10}+x_1x_5x_6x_7x_9x_{10}+x_1x_5x_6x_8x_9x_{10}+x_1x_5x_7x_8x_9x_{10}+x_1x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7+x_2x_3x_4x_5x_6x_8+x_2x_3x_4x_5x_6x_9+x_2x_3x_4x_5x_6x_{10}+x_2x_3x_4x_5x_7x_8+x_2x_3x_4x_5x_7x_9+x_2x_3x_4x_5x_7x_{10}+x_2x_3x_4x_5x_8x_9+x_2x_3x_4x_5x_8x_{10}+x_2x_3x_4x_5x_9x_{10}+x_2x_3x_4x_6x_7x_8+x_2x_3x_4x_6x_7x_9+x_2x_3x_4x_6x_7x_{10}+x_2x_3x_4x_6x_8x_9+x_2x_3x_4x_6x_8x_{10}+x_2x_3x_4x_6x_9x_{10}+x_2x_3x_4x_7x_8x_9+x_2x_3x_4x_7x_8x_{10}+x_2x_3x_4x_7x_9x_{10}+x_2x_3x_4x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8+x_2x_3x_5x_6x_7x_9+x_2x_3x_5x_6x_7x_{10}+x_2x_3x_5x_6x_8x_9+x_2x_3x_5x_6x_8x_{10}+x_2x_3x_5x_6x_9x_{10}+x_2x_3x_5x_7x_8x_9+x_2x_3x_5x_7x_8x_{10}+x_2x_3x_5x_7x_9x_{10}+x_2x_3x_5x_8x_9x_{10}+x_2x_3x_6x_7x_8x_9+x_2x_3x_6x_7x_8x_{10}+x_2x_3x_6x_7x_9x_{10}+x_2x_3x_6x_8x_9x_{10}+x_2x_3x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8+x_2x_4x_5x_6x_7x_9+x_2x_4x_5x_6x_7x_{10}+x_2x_4x_5x_6x_8x_9+x_2x_4x_5x_6x_8x_{10}+x_2x_4x_5x_6x_9x_{10}+x_2x_4x_5x_7x_8x_9+x_2x_4x_5x_7x_8x_{10}+x_2x_4x_5x_7x_9x_{10}+x_2x_4x_5x_8x_9x_{10}+x_2x_4x_6x_7x_8x_9+x_2x_4x_6x_7x_8x_{10}+x_2x_4x_6x_7x_9x_{10}+x_2x_4x_6x_8x_9x_{10}+x_2x_4x_7x_8x_9x_{10}+x_2x_5x_6x_7x_8x_9+x_2x_5x_6x_7x_8x_{10}+x_2x_5x_6x_7x_9x_{10}+x_2x_5x_6x_8x_9x_{10}+x_2x_5x_7x_8x_9x_{10}+x_2x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8+x_3x_4x_5x_6x_7x_9+x_3x_4x_5x_6x_7x_{10}+x_3x_4x_5x_6x_8x_9+x_3x_4x_5x_6x_8x_{10}+x_3x_4x_5x_6x_9x_{10}+x_3x_4x_5x_7x_8x_9+x_3x_4x_5x_7x_8x_{10}+x_3x_4x_5x_7x_9x_{10}+x_3x_4x_5x_8x_9x_{10}+x_3x_4x_6x_7x_8x_9+x_3x_4x_6x_7x_8x_{10}+x_3x_4x_6x_7x_9x_{10}+x_3x_4x_6x_8x_9x_{10}+x_3x_4x_7x_8x_9x_{10}+x_3x_5x_6x_7x_8x_9+x_3x_5x_6x_7x_8x_{10}+x_3x_5x_6x_7x_9x_{10}+x_3x_5x_6x_8x_9x_{10}+x_3x_5x_7x_8x_9x_{10}+x_3x_6x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8x_9+x_4x_5x_6x_7x_8x_{10}+x_4x_5x_6x_7x_9x_{10}+x_4x_5x_6x_8x_9x_{10}+x_4x_5x_7x_8x_9x_{10}+x_4x_6x_7x_8x_9x_{10}+x_5x_6x_7x_8x_9x_{10})x^4\)<br />
+            \(-(x_1x_2x_3x_4x_5x_6x_7+x_1x_2x_3x_4x_5x_6x_8+x_1x_2x_3x_4x_5x_6x_9+x_1x_2x_3x_4x_5x_6x_{10}+x_1x_2x_3x_4x_5x_7x_8+x_1x_2x_3x_4x_5x_7x_9+x_1x_2x_3x_4x_5x_7x_{10}+x_1x_2x_3x_4x_5x_8x_9+x_1x_2x_3x_4x_5x_8x_{10}+x_1x_2x_3x_4x_5x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8+x_1x_2x_3x_4x_6x_7x_9+x_1x_2x_3x_4x_6x_7x_{10}+x_1x_2x_3x_4x_6x_8x_9+x_1x_2x_3x_4x_6x_8x_{10}+x_1x_2x_3x_4x_6x_9x_{10}+x_1x_2x_3x_4x_7x_8x_9+x_1x_2x_3x_4x_7x_8x_{10}+x_1x_2x_3x_4x_7x_9x_{10}+x_1x_2x_3x_4x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8+x_1x_2x_3x_5x_6x_7x_9+x_1x_2x_3x_5x_6x_7x_{10}+x_1x_2x_3x_5x_6x_8x_9+x_1x_2x_3x_5x_6x_8x_{10}+x_1x_2x_3x_5x_6x_9x_{10}+x_1x_2x_3x_5x_7x_8x_9+x_1x_2x_3x_5x_7x_8x_{10}+x_1x_2x_3x_5x_7x_9x_{10}+x_1x_2x_3x_5x_8x_9x_{10}+x_1x_2x_3x_6x_7x_8x_9+x_1x_2x_3x_6x_7x_8x_{10}+x_1x_2x_3x_6x_7x_9x_{10}+x_1x_2x_3x_6x_8x_9x_{10}+x_1x_2x_3x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8+x_1x_2x_4x_5x_6x_7x_9+x_1x_2x_4x_5x_6x_7x_{10}+x_1x_2x_4x_5x_6x_8x_9+x_1x_2x_4x_5x_6x_8x_{10}+x_1x_2x_4x_5x_6x_9x_{10}+x_1x_2x_4x_5x_7x_8x_9+x_1x_2x_4x_5x_7x_8x_{10}+x_1x_2x_4x_5x_7x_9x_{10}+x_1x_2x_4x_5x_8x_9x_{10}+x_1x_2x_4x_6x_7x_8x_9+x_1x_2x_4x_6x_7x_8x_{10}+x_1x_2x_4x_6x_7x_9x_{10}+x_1x_2x_4x_6x_8x_9x_{10}+x_1x_2x_4x_7x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8x_9+x_1x_2x_5x_6x_7x_8x_{10}+x_1x_2x_5x_6x_7x_9x_{10}+x_1x_2x_5x_6x_8x_9x_{10}+x_1x_2x_5x_7x_8x_9x_{10}+x_1x_2x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8+x_1x_3x_4x_5x_6x_7x_9+x_1x_3x_4x_5x_6x_7x_{10}+x_1x_3x_4x_5x_6x_8x_9+x_1x_3x_4x_5x_6x_8x_{10}+x_1x_3x_4x_5x_6x_9x_{10}+x_1x_3x_4x_5x_7x_8x_9+x_1x_3x_4x_5x_7x_8x_{10}+x_1x_3x_4x_5x_7x_9x_{10}+x_1x_3x_4x_5x_8x_9x_{10}+x_1x_3x_4x_6x_7x_8x_9+x_1x_3x_4x_6x_7x_8x_{10}+x_1x_3x_4x_6x_7x_9x_{10}+x_1x_3x_4x_6x_8x_9x_{10}+x_1x_3x_4x_7x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8x_9+x_1x_3x_5x_6x_7x_8x_{10}+x_1x_3x_5x_6x_7x_9x_{10}+x_1x_3x_5x_6x_8x_9x_{10}+x_1x_3x_5x_7x_8x_9x_{10}+x_1x_3x_6x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8x_9+x_1x_4x_5x_6x_7x_8x_{10}+x_1x_4x_5x_6x_7x_9x_{10}+x_1x_4x_5x_6x_8x_9x_{10}+x_1x_4x_5x_7x_8x_9x_{10}+x_1x_4x_6x_7x_8x_9x_{10}+x_1x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8+x_2x_3x_4x_5x_6x_7x_9+x_2x_3x_4x_5x_6x_7x_{10}+x_2x_3x_4x_5x_6x_8x_9+x_2x_3x_4x_5x_6x_8x_{10}+x_2x_3x_4x_5x_6x_9x_{10}+x_2x_3x_4x_5x_7x_8x_9+x_2x_3x_4x_5x_7x_8x_{10}+x_2x_3x_4x_5x_7x_9x_{10}+x_2x_3x_4x_5x_8x_9x_{10}+x_2x_3x_4x_6x_7x_8x_9+x_2x_3x_4x_6x_7x_8x_{10}+x_2x_3x_4x_6x_7x_9x_{10}+x_2x_3x_4x_6x_8x_9x_{10}+x_2x_3x_4x_7x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8x_9+x_2x_3x_5x_6x_7x_8x_{10}+x_2x_3x_5x_6x_7x_9x_{10}+x_2x_3x_5x_6x_8x_9x_{10}+x_2x_3x_5x_7x_8x_9x_{10}+x_2x_3x_6x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8x_9+x_2x_4x_5x_6x_7x_8x_{10}+x_2x_4x_5x_6x_7x_9x_{10}+x_2x_4x_5x_6x_8x_9x_{10}+x_2x_4x_5x_7x_8x_9x_{10}+x_2x_4x_6x_7x_8x_9x_{10}+x_2x_5x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8x_9+x_3x_4x_5x_6x_7x_8x_{10}+x_3x_4x_5x_6x_7x_9x_{10}+x_3x_4x_5x_6x_8x_9x_{10}+x_3x_4x_5x_7x_8x_9x_{10}+x_3x_4x_6x_7x_8x_9x_{10}+x_3x_5x_6x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8x_9x_{10})x^3\)<br />
+            \(+(x_1x_2x_3x_4x_5x_6x_7x_8+x_1x_2x_3x_4x_5x_6x_7x_9+x_1x_2x_3x_4x_5x_6x_7x_{10}+x_1x_2x_3x_4x_5x_6x_8x_9+x_1x_2x_3x_4x_5x_6x_8x_{10}+x_1x_2x_3x_4x_5x_6x_9x_{10}+x_1x_2x_3x_4x_5x_7x_8x_9+x_1x_2x_3x_4x_5x_7x_8x_{10}+x_1x_2x_3x_4x_5x_7x_9x_{10}+x_1x_2x_3x_4x_5x_8x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8x_9+x_1x_2x_3x_4x_6x_7x_8x_{10}+x_1x_2x_3x_4x_6x_7x_9x_{10}+x_1x_2x_3x_4x_6x_8x_9x_{10}+x_1x_2x_3x_4x_7x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8x_9+x_1x_2x_3x_5x_6x_7x_8x_{10}+x_1x_2x_3x_5x_6x_7x_9x_{10}+x_1x_2x_3x_5x_6x_8x_9x_{10}+x_1x_2x_3x_5x_7x_8x_9x_{10}+x_1x_2x_3x_6x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8x_9+x_1x_2x_4x_5x_6x_7x_8x_{10}+x_1x_2x_4x_5x_6x_7x_9x_{10}+x_1x_2x_4x_5x_6x_8x_9x_{10}+x_1x_2x_4x_5x_7x_8x_9x_{10}+x_1x_2x_4x_6x_7x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8x_9+x_1x_3x_4x_5x_6x_7x_8x_{10}+x_1x_3x_4x_5x_6x_7x_9x_{10}+x_1x_3x_4x_5x_6x_8x_9x_{10}+x_1x_3x_4x_5x_7x_8x_9x_{10}+x_1x_3x_4x_6x_7x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8x_9+x_2x_3x_4x_5x_6x_7x_8x_{10}+x_2x_3x_4x_5x_6x_7x_9x_{10}+x_2x_3x_4x_5x_6x_8x_9x_{10}+x_2x_3x_4x_5x_7x_8x_9x_{10}+x_2x_3x_4x_6x_7x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8x_9x_{10})x^2\)<br />
+            \(-(x_1x_2x_3x_4x_5x_6x_7x_8x_9+x_1x_2x_3x_4x_5x_6x_7x_8x_{10}+x_1x_2x_3x_4x_5x_6x_7x_9x_{10}+x_1x_2x_3x_4x_5x_6x_8x_9x_{10}+x_1x_2x_3x_4x_5x_7x_8x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8x_9x_{10})x\)<br />
+            \(+(x_1x_2x_3x_4x_5x_6x_7x_8x_9x_{10})\)<br />
+            \(=0\)<br />
+        </span><br />
+        <span>
+            よって解と係数の関係は、<br />
+            \(x_1+x_2+x_3+x_4+x_5+x_6+x_7+x_8+x_9+x_{10}=-\frac{b}{a}\)<br />
+            \(x_1x_2+x_1x_3+x_1x_4+x_1x_5+x_1x_6+x_1x_7+x_1x_8+x_1x_9+x_1x_{10}+x_2x_3+x_2x_4+x_2x_5+x_2x_6+x_2x_7+x_2x_8+x_2x_9+x_2x_{10}+x_3x_4+x_3x_5+x_3x_6+x_3x_7+x_3x_8+x_3x_9+x_3x_{10}+x_4x_5+x_4x_6+x_4x_7+x_4x_8+x_4x_9+x_4x_{10}+x_5x_6+x_5x_7+x_5x_8+x_5x_9+x_5x_{10}+x_6x_7+x_6x_8+x_6x_9+x_6x_{10}+x_7x_8+x_7x_9+x_7x_{10}+x_8x_9+x_8x_{10}+x_9x_{10}=\frac{c}{a},\)<br />
+            \(x_1x_2x_3+x_1x_2x_4+x_1x_2x_5+x_1x_2x_6+x_1x_2x_7+x_1x_2x_8+x_1x_2x_9+x_1x_2x_{10}+x_1x_3x_4+x_1x_3x_5+x_1x_3x_6+x_1x_3x_7+x_1x_3x_8+x_1x_3x_9+x_1x_3x_{10}+x_1x_4x_5+x_1x_4x_6+x_1x_4x_7+x_1x_4x_8+x_1x_4x_9+x_1x_4x_{10}+x_1x_5x_6+x_1x_5x_7+x_1x_5x_8+x_1x_5x_9+x_1x_5x_{10}+x_1x_6x_7+x_1x_6x_8+x_1x_6x_9+x_1x_6x_{10}+x_1x_7x_8+x_1x_7x_9+x_1x_7x_{10}+x_1x_8x_9+x_1x_8x_{10}+x_1x_9x_{10}+x_2x_3x_4+x_2x_3x_5+x_2x_3x_6+x_2x_3x_7+x_2x_3x_8+x_2x_3x_9+x_2x_3x_{10}+x_2x_4x_5+x_2x_4x_6+x_2x_4x_7+x_2x_4x_8+x_2x_4x_9+x_2x_4x_{10}+x_2x_5x_6+x_2x_5x_7+x_2x_5x_8+x_2x_5x_9+x_2x_5x_{10}+x_2x_6x_7+x_2x_6x_8+x_2x_6x_9+x_2x_6x_{10}+x_2x_7x_8+x_2x_7x_9+x_2x_7x_{10}+x_2x_8x_9+x_2x_8x_{10}+x_2x_9x_{10}+x_3x_4x_5+x_3x_4x_6+x_3x_4x_7+x_3x_4x_8+x_3x_4x_9+x_3x_4x_{10}+x_3x_5x_6+x_3x_5x_7+x_3x_5x_8+x_3x_5x_9+x_3x_5x_{10}+x_3x_6x_7+x_3x_6x_8+x_3x_6x_9+x_3x_6x_{10}+x_3x_7x_8+x_3x_7x_9+x_3x_7x_{10}+x_3x_8x_9+x_3x_8x_{10}+x_3x_9x_{10}+x_4x_5x_6+x_4x_5x_7+x_4x_5x_8+x_4x_5x_9+x_4x_5x_{10}+x_4x_6x_7+x_4x_6x_8+x_4x_6x_9+x_4x_6x_{10}+x_4x_7x_8+x_4x_7x_9+x_4x_7x_{10}+x_4x_8x_9+x_4x_8x_{10}+x_4x_9x_{10}+x_5x_6x_7+x_5x_6x_8+x_5x_6x_9+x_5x_6x_{10}+x_5x_7x_8+x_5x_7x_9+x_5x_7x_{10}+x_5x_8x_9+x_5x_8x_{10}+x_5x_9x_{10}+x_6x_7x_8+x_6x_7x_9+x_6x_7x_{10}+x_6x_8x_9+x_6x_8x_{10}+x_6x_9x_{10}+x_7x_8x_9+x_7x_8x_{10}+x_7x_9x_{10}+x_8x_9x_{10}=-\frac{d}{a},\)<br />
+            \(x_1x_2x_3x_4+x_1x_2x_3x_5+x_1x_2x_3x_6+x_1x_2x_3x_7+x_1x_2x_3x_8+x_1x_2x_3x_9+x_1x_2x_3x_{10}+x_1x_2x_4x_5+x_1x_2x_4x_6+x_1x_2x_4x_7+x_1x_2x_4x_8+x_1x_2x_4x_9+x_1x_2x_4x_{10}+x_1x_2x_5x_6+x_1x_2x_5x_7+x_1x_2x_5x_8+x_1x_2x_5x_9+x_1x_2x_5x_{10}+x_1x_2x_6x_7+x_1x_2x_6x_8+x_1x_2x_6x_9+x_1x_2x_6x_{10}+x_1x_2x_7x_8+x_1x_2x_7x_9+x_1x_2x_7x_{10}+x_1x_2x_8x_9+x_1x_2x_8x_{10}+x_1x_2x_9x_{10}+x_1x_3x_4x_5+x_1x_3x_4x_6+x_1x_3x_4x_7+x_1x_3x_4x_8+x_1x_3x_4x_9+x_1x_3x_4x_{10}+x_1x_3x_5x_6+x_1x_3x_5x_7+x_1x_3x_5x_8+x_1x_3x_5x_9+x_1x_3x_5x_{10}+x_1x_3x_6x_7+x_1x_3x_6x_8+x_1x_3x_6x_9+x_1x_3x_6x_{10}+x_1x_3x_7x_8+x_1x_3x_7x_9+x_1x_3x_7x_{10}+x_1x_3x_8x_9+x_1x_3x_8x_{10}+x_1x_3x_9x_{10}+x_1x_4x_5x_6+x_1x_4x_5x_7+x_1x_4x_5x_8+x_1x_4x_5x_9+x_1x_4x_5x_{10}+x_1x_4x_6x_7+x_1x_4x_6x_8+x_1x_4x_6x_9+x_1x_4x_6x_{10}+x_1x_4x_7x_8+x_1x_4x_7x_9+x_1x_4x_7x_{10}+x_1x_4x_8x_9+x_1x_4x_8x_{10}+x_1x_4x_9x_{10}+x_1x_5x_6x_7+x_1x_5x_6x_8+x_1x_5x_6x_9+x_1x_5x_6x_{10}+x_1x_5x_7x_8+x_1x_5x_7x_9+x_1x_5x_7x_{10}+x_1x_5x_8x_9+x_1x_5x_8x_{10}+x_1x_5x_9x_{10}+x_1x_6x_7x_8+x_1x_6x_7x_9+x_1x_6x_7x_{10}+x_1x_6x_8x_9+x_1x_6x_8x_{10}+x_1x_6x_9x_{10}+x_1x_7x_8x_9+x_1x_7x_8x_{10}+x_1x_7x_9x_{10}+x_1x_8x_9x_{10}+x_2x_3x_4x_5+x_2x_3x_4x_6+x_2x_3x_4x_7+x_2x_3x_4x_8+x_2x_3x_4x_9+x_2x_3x_4x_{10}+x_2x_3x_5x_6+x_2x_3x_5x_7+x_2x_3x_5x_8+x_2x_3x_5x_9+x_2x_3x_5x_{10}+x_2x_3x_6x_7+x_2x_3x_6x_8+x_2x_3x_6x_9+x_2x_3x_6x_{10}+x_2x_3x_7x_8+x_2x_3x_7x_9+x_2x_3x_7x_{10}+x_2x_3x_8x_9+x_2x_3x_8x_{10}+x_2x_3x_9x_{10}+x_2x_4x_5x_6+x_2x_4x_5x_7+x_2x_4x_5x_8+x_2x_4x_5x_9+x_2x_4x_5x_{10}+x_2x_4x_6x_7+x_2x_4x_6x_8+x_2x_4x_6x_9+x_2x_4x_6x_{10}+x_2x_4x_7x_8+x_2x_4x_7x_9+x_2x_4x_7x_{10}+x_2x_4x_8x_9+x_2x_4x_8x_{10}+x_2x_4x_9x_{10}+x_2x_5x_6x_7+x_2x_5x_6x_8+x_2x_5x_6x_9+x_2x_5x_6x_{10}+x_2x_5x_7x_8+x_2x_5x_7x_9+x_2x_5x_7x_{10}+x_2x_5x_8x_9+x_2x_5x_8x_{10}+x_2x_5x_9x_{10}+x_2x_6x_7x_8+x_2x_6x_7x_9+x_2x_6x_7x_{10}+x_2x_6x_8x_9+x_2x_6x_8x_{10}+x_2x_6x_9x_{10}+x_2x_7x_8x_9+x_2x_7x_8x_{10}+x_2x_7x_9x_{10}+x_2x_8x_9x_{10}+x_3x_4x_5x_6+x_3x_4x_5x_7+x_3x_4x_5x_8+x_3x_4x_5x_9+x_3x_4x_5x_{10}+x_3x_4x_6x_7+x_3x_4x_6x_8+x_3x_4x_6x_9+x_3x_4x_6x_{10}+x_3x_4x_7x_8+x_3x_4x_7x_9+x_3x_4x_7x_{10}+x_3x_4x_8x_9+x_3x_4x_8x_{10}+x_3x_4x_9x_{10}+x_3x_5x_6x_7+x_3x_5x_6x_8+x_3x_5x_6x_9+x_3x_5x_6x_{10}+x_3x_5x_7x_8+x_3x_5x_7x_9+x_3x_5x_7x_{10}+x_3x_5x_8x_9+x_3x_5x_8x_{10}+x_3x_5x_9x_{10}+x_3x_6x_7x_8+x_3x_6x_7x_9+x_3x_6x_7x_{10}+x_3x_6x_8x_9+x_3x_6x_8x_{10}+x_3x_6x_9x_{10}+x_3x_7x_8x_9+x_3x_7x_8x_{10}+x_3x_7x_9x_{10}+x_3x_8x_9x_{10}+x_4x_5x_6x_7+x_4x_5x_6x_8+x_4x_5x_6x_9+x_4x_5x_6x_{10}+x_4x_5x_7x_8+x_4x_5x_7x_9+x_4x_5x_7x_{10}+x_4x_5x_8x_9+x_4x_5x_8x_{10}+x_4x_5x_9x_{10}+x_4x_6x_7x_8+x_4x_6x_7x_9+x_4x_6x_7x_{10}+x_4x_6x_8x_9+x_4x_6x_8x_{10}+x_4x_6x_9x_{10}+x_4x_7x_8x_9+x_4x_7x_8x_{10}+x_4x_7x_9x_{10}+x_4x_8x_9x_{10}+x_5x_6x_7x_8+x_5x_6x_7x_9+x_5x_6x_7x_{10}+x_5x_6x_8x_9+x_5x_6x_8x_{10}+x_5x_6x_9x_{10}+x_5x_7x_8x_9+x_5x_7x_8x_{10}+x_5x_7x_9x_{10}+x_5x_8x_9x_{10}+x_6x_7x_8x_9+x_6x_7x_8x_{10}+x_6x_7x_9x_{10}+x_6x_8x_9x_{10}+x_7x_8x_9x_{10}=\frac{e}{a},\)<br />
+            \(x_1x_2x_3x_4x_5+x_1x_2x_3x_4x_6+x_1x_2x_3x_4x_7+x_1x_2x_3x_4x_8+x_1x_2x_3x_4x_9+x_1x_2x_3x_4x_{10}+x_1x_2x_3x_5x_6+x_1x_2x_3x_5x_7+x_1x_2x_3x_5x_8+x_1x_2x_3x_5x_9+x_1x_2x_3x_5x_{10}+x_1x_2x_3x_6x_7+x_1x_2x_3x_6x_8+x_1x_2x_3x_6x_9+x_1x_2x_3x_6x_{10}+x_1x_2x_3x_7x_8+x_1x_2x_3x_7x_9+x_1x_2x_3x_7x_{10}+x_1x_2x_3x_8x_9+x_1x_2x_3x_8x_{10}+x_1x_2x_3x_9x_{10}+x_1x_2x_4x_5x_6+x_1x_2x_4x_5x_7+x_1x_2x_4x_5x_8+x_1x_2x_4x_5x_9+x_1x_2x_4x_5x_{10}+x_1x_2x_4x_6x_7+x_1x_2x_4x_6x_8+x_1x_2x_4x_6x_9+x_1x_2x_4x_6x_{10}+x_1x_2x_4x_7x_8+x_1x_2x_4x_7x_9+x_1x_2x_4x_7x_{10}+x_1x_2x_4x_8x_9+x_1x_2x_4x_8x_{10}+x_1x_2x_4x_9x_{10}+x_1x_2x_5x_6x_7+x_1x_2x_5x_6x_8+x_1x_2x_5x_6x_9+x_1x_2x_5x_6x_{10}+x_1x_2x_5x_7x_8+x_1x_2x_5x_7x_9+x_1x_2x_5x_7x_{10}+x_1x_2x_5x_8x_9+x_1x_2x_5x_8x_{10}+x_1x_2x_5x_9x_{10}+x_1x_2x_6x_7x_8+x_1x_2x_6x_7x_9+x_1x_2x_6x_7x_{10}+x_1x_2x_6x_8x_9+x_1x_2x_6x_8x_{10}+x_1x_2x_6x_9x_{10}+x_1x_2x_7x_8x_9+x_1x_2x_7x_8x_{10}+x_1x_2x_7x_9x_{10}+x_1x_2x_8x_9x_{10}+x_1x_3x_4x_5x_6+x_1x_3x_4x_5x_7+x_1x_3x_4x_5x_8+x_1x_3x_4x_5x_9+x_1x_3x_4x_5x_{10}+x_1x_3x_4x_6x_7+x_1x_3x_4x_6x_8+x_1x_3x_4x_6x_9+x_1x_3x_4x_6x_{10}+x_1x_3x_4x_7x_8+x_1x_3x_4x_7x_9+x_1x_3x_4x_7x_{10}+x_1x_3x_4x_8x_9+x_1x_3x_4x_8x_{10}+x_1x_3x_4x_9x_{10}+x_1x_3x_5x_6x_7+x_1x_3x_5x_6x_8+x_1x_3x_5x_6x_9+x_1x_3x_5x_6x_{10}+x_1x_3x_5x_7x_8+x_1x_3x_5x_7x_9+x_1x_3x_5x_7x_{10}+x_1x_3x_5x_8x_9+x_1x_3x_5x_8x_{10}+x_1x_3x_5x_9x_{10}+x_1x_3x_6x_7x_8+x_1x_3x_6x_7x_9+x_1x_3x_6x_7x_{10}+x_1x_3x_6x_8x_9+x_1x_3x_6x_8x_{10}+x_1x_3x_6x_9x_{10}+x_1x_3x_7x_8x_9+x_1x_3x_7x_8x_{10}+x_1x_3x_7x_9x_{10}+x_1x_3x_8x_9x_{10}+x_1x_4x_5x_6x_7+x_1x_4x_5x_6x_8+x_1x_4x_5x_6x_9+x_1x_4x_5x_6x_{10}+x_1x_4x_5x_7x_8+x_1x_4x_5x_7x_9+x_1x_4x_5x_7x_{10}+x_1x_4x_5x_8x_9+x_1x_4x_5x_8x_{10}+x_1x_4x_5x_9x_{10}+x_1x_4x_6x_7x_8+x_1x_4x_6x_7x_9+x_1x_4x_6x_7x_{10}+x_1x_4x_6x_8x_9+x_1x_4x_6x_8x_{10}+x_1x_4x_6x_9x_{10}+x_1x_4x_7x_8x_9+x_1x_4x_7x_8x_{10}+x_1x_4x_7x_9x_{10}+x_1x_4x_8x_9x_{10}+x_1x_5x_6x_7x_8+x_1x_5x_6x_7x_9+x_1x_5x_6x_7x_{10}+x_1x_5x_6x_8x_9+x_1x_5x_6x_8x_{10}+x_1x_5x_6x_9x_{10}+x_1x_5x_7x_8x_9+x_1x_5x_7x_8x_{10}+x_1x_5x_7x_9x_{10}+x_1x_5x_8x_9x_{10}+x_1x_6x_7x_8x_9+x_1x_6x_7x_8x_{10}+x_1x_6x_7x_9x_{10}+x_1x_6x_8x_9x_{10}+x_1x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6+x_2x_3x_4x_5x_7+x_2x_3x_4x_5x_8+x_2x_3x_4x_5x_9+x_2x_3x_4x_5x_{10}+x_2x_3x_4x_6x_7+x_2x_3x_4x_6x_8+x_2x_3x_4x_6x_9+x_2x_3x_4x_6x_{10}+x_2x_3x_4x_7x_8+x_2x_3x_4x_7x_9+x_2x_3x_4x_7x_{10}+x_2x_3x_4x_8x_9+x_2x_3x_4x_8x_{10}+x_2x_3x_4x_9x_{10}+x_2x_3x_5x_6x_7+x_2x_3x_5x_6x_8+x_2x_3x_5x_6x_9+x_2x_3x_5x_6x_{10}+x_2x_3x_5x_7x_8+x_2x_3x_5x_7x_9+x_2x_3x_5x_7x_{10}+x_2x_3x_5x_8x_9+x_2x_3x_5x_8x_{10}+x_2x_3x_5x_9x_{10}+x_2x_3x_6x_7x_8+x_2x_3x_6x_7x_9+x_2x_3x_6x_7x_{10}+x_2x_3x_6x_8x_9+x_2x_3x_6x_8x_{10}+x_2x_3x_6x_9x_{10}+x_2x_3x_7x_8x_9+x_2x_3x_7x_8x_{10}+x_2x_3x_7x_9x_{10}+x_2x_3x_8x_9x_{10}+x_2x_4x_5x_6x_7+x_2x_4x_5x_6x_8+x_2x_4x_5x_6x_9+x_2x_4x_5x_6x_{10}+x_2x_4x_5x_7x_8+x_2x_4x_5x_7x_9+x_2x_4x_5x_7x_{10}+x_2x_4x_5x_8x_9+x_2x_4x_5x_8x_{10}+x_2x_4x_5x_9x_{10}+x_2x_4x_6x_7x_8+x_2x_4x_6x_7x_9+x_2x_4x_6x_7x_{10}+x_2x_4x_6x_8x_9+x_2x_4x_6x_8x_{10}+x_2x_4x_6x_9x_{10}+x_2x_4x_7x_8x_9+x_2x_4x_7x_8x_{10}+x_2x_4x_7x_9x_{10}+x_2x_4x_8x_9x_{10}+x_2x_5x_6x_7x_8+x_2x_5x_6x_7x_9+x_2x_5x_6x_7x_{10}+x_2x_5x_6x_8x_9+x_2x_5x_6x_8x_{10}+x_2x_5x_6x_9x_{10}+x_2x_5x_7x_8x_9+x_2x_5x_7x_8x_{10}+x_2x_5x_7x_9x_{10}+x_2x_5x_8x_9x_{10}+x_2x_6x_7x_8x_9+x_2x_6x_7x_8x_{10}+x_2x_6x_7x_9x_{10}+x_2x_6x_8x_9x_{10}+x_2x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7+x_3x_4x_5x_6x_8+x_3x_4x_5x_6x_9+x_3x_4x_5x_6x_{10}+x_3x_4x_5x_7x_8+x_3x_4x_5x_7x_9+x_3x_4x_5x_7x_{10}+x_3x_4x_5x_8x_9+x_3x_4x_5x_8x_{10}+x_3x_4x_5x_9x_{10}+x_3x_4x_6x_7x_8+x_3x_4x_6x_7x_9+x_3x_4x_6x_7x_{10}+x_3x_4x_6x_8x_9+x_3x_4x_6x_8x_{10}+x_3x_4x_6x_9x_{10}+x_3x_4x_7x_8x_9+x_3x_4x_7x_8x_{10}+x_3x_4x_7x_9x_{10}+x_3x_4x_8x_9x_{10}+x_3x_5x_6x_7x_8+x_3x_5x_6x_7x_9+x_3x_5x_6x_7x_{10}+x_3x_5x_6x_8x_9+x_3x_5x_6x_8x_{10}+x_3x_5x_6x_9x_{10}+x_3x_5x_7x_8x_9+x_3x_5x_7x_8x_{10}+x_3x_5x_7x_9x_{10}+x_3x_5x_8x_9x_{10}+x_3x_6x_7x_8x_9+x_3x_6x_7x_8x_{10}+x_3x_6x_7x_9x_{10}+x_3x_6x_8x_9x_{10}+x_3x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8+x_4x_5x_6x_7x_9+x_4x_5x_6x_7x_{10}+x_4x_5x_6x_8x_9+x_4x_5x_6x_8x_{10}+x_4x_5x_6x_9x_{10}+x_4x_5x_7x_8x_9+x_4x_5x_7x_8x_{10}+x_4x_5x_7x_9x_{10}+x_4x_5x_8x_9x_{10}+x_4x_6x_7x_8x_9+x_4x_6x_7x_8x_{10}+x_4x_6x_7x_9x_{10}+x_4x_6x_8x_9x_{10}+x_4x_7x_8x_9x_{10}+x_5x_6x_7x_8x_9+x_5x_6x_7x_8x_{10}+x_5x_6x_7x_9x_{10}+x_5x_6x_8x_9x_{10}+x_5x_7x_8x_9x_{10}+x_6x_7x_8x_9x_{10}=-\frac{f}{a},\)<br />
+            \(x_1x_2x_3x_4x_5x_6+x_1x_2x_3x_4x_5x_7+x_1x_2x_3x_4x_5x_8+x_1x_2x_3x_4x_5x_9+x_1x_2x_3x_4x_5x_{10}+x_1x_2x_3x_4x_6x_7+x_1x_2x_3x_4x_6x_8+x_1x_2x_3x_4x_6x_9+x_1x_2x_3x_4x_6x_{10}+x_1x_2x_3x_4x_7x_8+x_1x_2x_3x_4x_7x_9+x_1x_2x_3x_4x_7x_{10}+x_1x_2x_3x_4x_8x_9+x_1x_2x_3x_4x_8x_{10}+x_1x_2x_3x_4x_9x_{10}+x_1x_2x_3x_5x_6x_7+x_1x_2x_3x_5x_6x_8+x_1x_2x_3x_5x_6x_9+x_1x_2x_3x_5x_6x_{10}+x_1x_2x_3x_5x_7x_8+x_1x_2x_3x_5x_7x_9+x_1x_2x_3x_5x_7x_{10}+x_1x_2x_3x_5x_8x_9+x_1x_2x_3x_5x_8x_{10}+x_1x_2x_3x_5x_9x_{10}+x_1x_2x_3x_6x_7x_8+x_1x_2x_3x_6x_7x_9+x_1x_2x_3x_6x_7x_{10}+x_1x_2x_3x_6x_8x_9+x_1x_2x_3x_6x_8x_{10}+x_1x_2x_3x_6x_9x_{10}+x_1x_2x_3x_7x_8x_9+x_1x_2x_3x_7x_8x_{10}+x_1x_2x_3x_7x_9x_{10}+x_1x_2x_3x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7+x_1x_2x_4x_5x_6x_8+x_1x_2x_4x_5x_6x_9+x_1x_2x_4x_5x_6x_{10}+x_1x_2x_4x_5x_7x_8+x_1x_2x_4x_5x_7x_9+x_1x_2x_4x_5x_7x_{10}+x_1x_2x_4x_5x_8x_9+x_1x_2x_4x_5x_8x_{10}+x_1x_2x_4x_5x_9x_{10}+x_1x_2x_4x_6x_7x_8+x_1x_2x_4x_6x_7x_9+x_1x_2x_4x_6x_7x_{10}+x_1x_2x_4x_6x_8x_9+x_1x_2x_4x_6x_8x_{10}+x_1x_2x_4x_6x_9x_{10}+x_1x_2x_4x_7x_8x_9+x_1x_2x_4x_7x_8x_{10}+x_1x_2x_4x_7x_9x_{10}+x_1x_2x_4x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8+x_1x_2x_5x_6x_7x_9+x_1x_2x_5x_6x_7x_{10}+x_1x_2x_5x_6x_8x_9+x_1x_2x_5x_6x_8x_{10}+x_1x_2x_5x_6x_9x_{10}+x_1x_2x_5x_7x_8x_9+x_1x_2x_5x_7x_8x_{10}+x_1x_2x_5x_7x_9x_{10}+x_1x_2x_5x_8x_9x_{10}+x_1x_2x_6x_7x_8x_9+x_1x_2x_6x_7x_8x_{10}+x_1x_2x_6x_7x_9x_{10}+x_1x_2x_6x_8x_9x_{10}+x_1x_2x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7+x_1x_3x_4x_5x_6x_8+x_1x_3x_4x_5x_6x_9+x_1x_3x_4x_5x_6x_{10}+x_1x_3x_4x_5x_7x_8+x_1x_3x_4x_5x_7x_9+x_1x_3x_4x_5x_7x_{10}+x_1x_3x_4x_5x_8x_9+x_1x_3x_4x_5x_8x_{10}+x_1x_3x_4x_5x_9x_{10}+x_1x_3x_4x_6x_7x_8+x_1x_3x_4x_6x_7x_9+x_1x_3x_4x_6x_7x_{10}+x_1x_3x_4x_6x_8x_9+x_1x_3x_4x_6x_8x_{10}+x_1x_3x_4x_6x_9x_{10}+x_1x_3x_4x_7x_8x_9+x_1x_3x_4x_7x_8x_{10}+x_1x_3x_4x_7x_9x_{10}+x_1x_3x_4x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8+x_1x_3x_5x_6x_7x_9+x_1x_3x_5x_6x_7x_{10}+x_1x_3x_5x_6x_8x_9+x_1x_3x_5x_6x_8x_{10}+x_1x_3x_5x_6x_9x_{10}+x_1x_3x_5x_7x_8x_9+x_1x_3x_5x_7x_8x_{10}+x_1x_3x_5x_7x_9x_{10}+x_1x_3x_5x_8x_9x_{10}+x_1x_3x_6x_7x_8x_9+x_1x_3x_6x_7x_8x_{10}+x_1x_3x_6x_7x_9x_{10}+x_1x_3x_6x_8x_9x_{10}+x_1x_3x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8+x_1x_4x_5x_6x_7x_9+x_1x_4x_5x_6x_7x_{10}+x_1x_4x_5x_6x_8x_9+x_1x_4x_5x_6x_8x_{10}+x_1x_4x_5x_6x_9x_{10}+x_1x_4x_5x_7x_8x_9+x_1x_4x_5x_7x_8x_{10}+x_1x_4x_5x_7x_9x_{10}+x_1x_4x_5x_8x_9x_{10}+x_1x_4x_6x_7x_8x_9+x_1x_4x_6x_7x_8x_{10}+x_1x_4x_6x_7x_9x_{10}+x_1x_4x_6x_8x_9x_{10}+x_1x_4x_7x_8x_9x_{10}+x_1x_5x_6x_7x_8x_9+x_1x_5x_6x_7x_8x_{10}+x_1x_5x_6x_7x_9x_{10}+x_1x_5x_6x_8x_9x_{10}+x_1x_5x_7x_8x_9x_{10}+x_1x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7+x_2x_3x_4x_5x_6x_8+x_2x_3x_4x_5x_6x_9+x_2x_3x_4x_5x_6x_{10}+x_2x_3x_4x_5x_7x_8+x_2x_3x_4x_5x_7x_9+x_2x_3x_4x_5x_7x_{10}+x_2x_3x_4x_5x_8x_9+x_2x_3x_4x_5x_8x_{10}+x_2x_3x_4x_5x_9x_{10}+x_2x_3x_4x_6x_7x_8+x_2x_3x_4x_6x_7x_9+x_2x_3x_4x_6x_7x_{10}+x_2x_3x_4x_6x_8x_9+x_2x_3x_4x_6x_8x_{10}+x_2x_3x_4x_6x_9x_{10}+x_2x_3x_4x_7x_8x_9+x_2x_3x_4x_7x_8x_{10}+x_2x_3x_4x_7x_9x_{10}+x_2x_3x_4x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8+x_2x_3x_5x_6x_7x_9+x_2x_3x_5x_6x_7x_{10}+x_2x_3x_5x_6x_8x_9+x_2x_3x_5x_6x_8x_{10}+x_2x_3x_5x_6x_9x_{10}+x_2x_3x_5x_7x_8x_9+x_2x_3x_5x_7x_8x_{10}+x_2x_3x_5x_7x_9x_{10}+x_2x_3x_5x_8x_9x_{10}+x_2x_3x_6x_7x_8x_9+x_2x_3x_6x_7x_8x_{10}+x_2x_3x_6x_7x_9x_{10}+x_2x_3x_6x_8x_9x_{10}+x_2x_3x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8+x_2x_4x_5x_6x_7x_9+x_2x_4x_5x_6x_7x_{10}+x_2x_4x_5x_6x_8x_9+x_2x_4x_5x_6x_8x_{10}+x_2x_4x_5x_6x_9x_{10}+x_2x_4x_5x_7x_8x_9+x_2x_4x_5x_7x_8x_{10}+x_2x_4x_5x_7x_9x_{10}+x_2x_4x_5x_8x_9x_{10}+x_2x_4x_6x_7x_8x_9+x_2x_4x_6x_7x_8x_{10}+x_2x_4x_6x_7x_9x_{10}+x_2x_4x_6x_8x_9x_{10}+x_2x_4x_7x_8x_9x_{10}+x_2x_5x_6x_7x_8x_9+x_2x_5x_6x_7x_8x_{10}+x_2x_5x_6x_7x_9x_{10}+x_2x_5x_6x_8x_9x_{10}+x_2x_5x_7x_8x_9x_{10}+x_2x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8+x_3x_4x_5x_6x_7x_9+x_3x_4x_5x_6x_7x_{10}+x_3x_4x_5x_6x_8x_9+x_3x_4x_5x_6x_8x_{10}+x_3x_4x_5x_6x_9x_{10}+x_3x_4x_5x_7x_8x_9+x_3x_4x_5x_7x_8x_{10}+x_3x_4x_5x_7x_9x_{10}+x_3x_4x_5x_8x_9x_{10}+x_3x_4x_6x_7x_8x_9+x_3x_4x_6x_7x_8x_{10}+x_3x_4x_6x_7x_9x_{10}+x_3x_4x_6x_8x_9x_{10}+x_3x_4x_7x_8x_9x_{10}+x_3x_5x_6x_7x_8x_9+x_3x_5x_6x_7x_8x_{10}+x_3x_5x_6x_7x_9x_{10}+x_3x_5x_6x_8x_9x_{10}+x_3x_5x_7x_8x_9x_{10}+x_3x_6x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8x_9+x_4x_5x_6x_7x_8x_{10}+x_4x_5x_6x_7x_9x_{10}+x_4x_5x_6x_8x_9x_{10}+x_4x_5x_7x_8x_9x_{10}+x_4x_6x_7x_8x_9x_{10}+x_5x_6x_7x_8x_9x_{10}=\frac{g}{a},\)<br />
+            \(x_1x_2x_3x_4x_5x_6x_7+x_1x_2x_3x_4x_5x_6x_8+x_1x_2x_3x_4x_5x_6x_9+x_1x_2x_3x_4x_5x_6x_{10}+x_1x_2x_3x_4x_5x_7x_8+x_1x_2x_3x_4x_5x_7x_9+x_1x_2x_3x_4x_5x_7x_{10}+x_1x_2x_3x_4x_5x_8x_9+x_1x_2x_3x_4x_5x_8x_{10}+x_1x_2x_3x_4x_5x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8+x_1x_2x_3x_4x_6x_7x_9+x_1x_2x_3x_4x_6x_7x_{10}+x_1x_2x_3x_4x_6x_8x_9+x_1x_2x_3x_4x_6x_8x_{10}+x_1x_2x_3x_4x_6x_9x_{10}+x_1x_2x_3x_4x_7x_8x_9+x_1x_2x_3x_4x_7x_8x_{10}+x_1x_2x_3x_4x_7x_9x_{10}+x_1x_2x_3x_4x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8+x_1x_2x_3x_5x_6x_7x_9+x_1x_2x_3x_5x_6x_7x_{10}+x_1x_2x_3x_5x_6x_8x_9+x_1x_2x_3x_5x_6x_8x_{10}+x_1x_2x_3x_5x_6x_9x_{10}+x_1x_2x_3x_5x_7x_8x_9+x_1x_2x_3x_5x_7x_8x_{10}+x_1x_2x_3x_5x_7x_9x_{10}+x_1x_2x_3x_5x_8x_9x_{10}+x_1x_2x_3x_6x_7x_8x_9+x_1x_2x_3x_6x_7x_8x_{10}+x_1x_2x_3x_6x_7x_9x_{10}+x_1x_2x_3x_6x_8x_9x_{10}+x_1x_2x_3x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8+x_1x_2x_4x_5x_6x_7x_9+x_1x_2x_4x_5x_6x_7x_{10}+x_1x_2x_4x_5x_6x_8x_9+x_1x_2x_4x_5x_6x_8x_{10}+x_1x_2x_4x_5x_6x_9x_{10}+x_1x_2x_4x_5x_7x_8x_9+x_1x_2x_4x_5x_7x_8x_{10}+x_1x_2x_4x_5x_7x_9x_{10}+x_1x_2x_4x_5x_8x_9x_{10}+x_1x_2x_4x_6x_7x_8x_9+x_1x_2x_4x_6x_7x_8x_{10}+x_1x_2x_4x_6x_7x_9x_{10}+x_1x_2x_4x_6x_8x_9x_{10}+x_1x_2x_4x_7x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8x_9+x_1x_2x_5x_6x_7x_8x_{10}+x_1x_2x_5x_6x_7x_9x_{10}+x_1x_2x_5x_6x_8x_9x_{10}+x_1x_2x_5x_7x_8x_9x_{10}+x_1x_2x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8+x_1x_3x_4x_5x_6x_7x_9+x_1x_3x_4x_5x_6x_7x_{10}+x_1x_3x_4x_5x_6x_8x_9+x_1x_3x_4x_5x_6x_8x_{10}+x_1x_3x_4x_5x_6x_9x_{10}+x_1x_3x_4x_5x_7x_8x_9+x_1x_3x_4x_5x_7x_8x_{10}+x_1x_3x_4x_5x_7x_9x_{10}+x_1x_3x_4x_5x_8x_9x_{10}+x_1x_3x_4x_6x_7x_8x_9+x_1x_3x_4x_6x_7x_8x_{10}+x_1x_3x_4x_6x_7x_9x_{10}+x_1x_3x_4x_6x_8x_9x_{10}+x_1x_3x_4x_7x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8x_9+x_1x_3x_5x_6x_7x_8x_{10}+x_1x_3x_5x_6x_7x_9x_{10}+x_1x_3x_5x_6x_8x_9x_{10}+x_1x_3x_5x_7x_8x_9x_{10}+x_1x_3x_6x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8x_9+x_1x_4x_5x_6x_7x_8x_{10}+x_1x_4x_5x_6x_7x_9x_{10}+x_1x_4x_5x_6x_8x_9x_{10}+x_1x_4x_5x_7x_8x_9x_{10}+x_1x_4x_6x_7x_8x_9x_{10}+x_1x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8+x_2x_3x_4x_5x_6x_7x_9+x_2x_3x_4x_5x_6x_7x_{10}+x_2x_3x_4x_5x_6x_8x_9+x_2x_3x_4x_5x_6x_8x_{10}+x_2x_3x_4x_5x_6x_9x_{10}+x_2x_3x_4x_5x_7x_8x_9+x_2x_3x_4x_5x_7x_8x_{10}+x_2x_3x_4x_5x_7x_9x_{10}+x_2x_3x_4x_5x_8x_9x_{10}+x_2x_3x_4x_6x_7x_8x_9+x_2x_3x_4x_6x_7x_8x_{10}+x_2x_3x_4x_6x_7x_9x_{10}+x_2x_3x_4x_6x_8x_9x_{10}+x_2x_3x_4x_7x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8x_9+x_2x_3x_5x_6x_7x_8x_{10}+x_2x_3x_5x_6x_7x_9x_{10}+x_2x_3x_5x_6x_8x_9x_{10}+x_2x_3x_5x_7x_8x_9x_{10}+x_2x_3x_6x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8x_9+x_2x_4x_5x_6x_7x_8x_{10}+x_2x_4x_5x_6x_7x_9x_{10}+x_2x_4x_5x_6x_8x_9x_{10}+x_2x_4x_5x_7x_8x_9x_{10}+x_2x_4x_6x_7x_8x_9x_{10}+x_2x_5x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8x_9+x_3x_4x_5x_6x_7x_8x_{10}+x_3x_4x_5x_6x_7x_9x_{10}+x_3x_4x_5x_6x_8x_9x_{10}+x_3x_4x_5x_7x_8x_9x_{10}+x_3x_4x_6x_7x_8x_9x_{10}+x_3x_5x_6x_7x_8x_9x_{10}+x_4x_5x_6x_7x_8x_9x_{10}=-\frac{h}{a},\)<br />
+            \(x_1x_2x_3x_4x_5x_6x_7x_8+x_1x_2x_3x_4x_5x_6x_7x_9+x_1x_2x_3x_4x_5x_6x_7x_{10}+x_1x_2x_3x_4x_5x_6x_8x_9+x_1x_2x_3x_4x_5x_6x_8x_{10}+x_1x_2x_3x_4x_5x_6x_9x_{10}+x_1x_2x_3x_4x_5x_7x_8x_9+x_1x_2x_3x_4x_5x_7x_8x_{10}+x_1x_2x_3x_4x_5x_7x_9x_{10}+x_1x_2x_3x_4x_5x_8x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8x_9+x_1x_2x_3x_4x_6x_7x_8x_{10}+x_1x_2x_3x_4x_6x_7x_9x_{10}+x_1x_2x_3x_4x_6x_8x_9x_{10}+x_1x_2x_3x_4x_7x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8x_9+x_1x_2x_3x_5x_6x_7x_8x_{10}+x_1x_2x_3x_5x_6x_7x_9x_{10}+x_1x_2x_3x_5x_6x_8x_9x_{10}+x_1x_2x_3x_5x_7x_8x_9x_{10}+x_1x_2x_3x_6x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8x_9+x_1x_2x_4x_5x_6x_7x_8x_{10}+x_1x_2x_4x_5x_6x_7x_9x_{10}+x_1x_2x_4x_5x_6x_8x_9x_{10}+x_1x_2x_4x_5x_7x_8x_9x_{10}+x_1x_2x_4x_6x_7x_8x_9x_{10}+x_1x_2x_5x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8x_9+x_1x_3x_4x_5x_6x_7x_8x_{10}+x_1x_3x_4x_5x_6x_7x_9x_{10}+x_1x_3x_4x_5x_6x_8x_9x_{10}+x_1x_3x_4x_5x_7x_8x_9x_{10}+x_1x_3x_4x_6x_7x_8x_9x_{10}+x_1x_3x_5x_6x_7x_8x_9x_{10}+x_1x_4x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8x_9+x_2x_3x_4x_5x_6x_7x_8x_{10}+x_2x_3x_4x_5x_6x_7x_9x_{10}+x_2x_3x_4x_5x_6x_8x_9x_{10}+x_2x_3x_4x_5x_7x_8x_9x_{10}+x_2x_3x_4x_6x_7x_8x_9x_{10}+x_2x_3x_5x_6x_7x_8x_9x_{10}+x_2x_4x_5x_6x_7x_8x_9x_{10}+x_3x_4x_5x_6x_7x_8x_9x_{10}=\frac{i}{a},\)<br />
+            \(x_1x_2x_3x_4x_5x_6x_7x_8x_9+x_1x_2x_3x_4x_5x_6x_7x_8x_{10}+x_1x_2x_3x_4x_5x_6x_7x_9x_{10}+x_1x_2x_3x_4x_5x_6x_8x_9x_{10}+x_1x_2x_3x_4x_5x_7x_8x_9x_{10}+x_1x_2x_3x_4x_6x_7x_8x_9x_{10}+x_1x_2x_3x_5x_6x_7x_8x_9x_{10}+x_1x_2x_4x_5x_6x_7x_8x_9x_{10}+x_1x_3x_4x_5x_6x_7x_8x_9x_{10}+x_2x_3x_4x_5x_6x_7x_8x_9x_{10}=-\frac{j}{a},\)<br />
+            \(x_1x_2x_3x_4x_5x_6x_7x_8x_9x_{10}=\frac{k}{a}\)<br />
+        </span>
+    </details>
 </div>
 
+<!--|----------HTML BODY END----------|-->
 @code {
-    private string eqst { get; set; } = "";
-    private string addt { get; set; } = "";
-    private string rts { get; set; } = "";
-    private string time { get; set; } = "";
+    private int calDigit = 5;
+
+    private double eq3_r1 = 1;
+    private double eq3_r2 = 2;
+    private double eq3_r3 = 3;
+    private double eq3_c1 = 1;
+    private double eq3_c2 = 2;
+    private double eq3_c3 = 3;
+    private double eq3_c4 = 4;
+    private string eq3_ans = "";
+
+    private double eq4_r1 = 1;
+    private double eq4_r2 = 2;
+    private double eq4_r3 = 3;
+    private double eq4_r4 = 4;
+    private double eq4_c1 = 1;
+    private double eq4_c2 = 2;
+    private double eq4_c3 = 3;
+    private double eq4_c4 = 4;
+    private double eq4_c5 = 5;
+    private string eq4_ans = "";
 
 
-    private double e3x1 { get; set; } = 1;
-    private double e3x2 { get; set; } = 2;
-    private double e3x3 { get; set; } = 3;
-
-    private double e4x1 { get; set; } = 1;
-    private double e4x2 { get; set; } = 2;
-    private double e4x3 { get; set; } = 3;
-    private double e4x4 { get; set; } = 4;
-
-    private bool is4 { get; set; } = false;
-    private void Solve()
+    private void Cal3Make()
     {
-        var stt = DateTime.Now;
-        var eq = is4 ? CreateEquation([e4x1, e4x2, e4x3, e4x4]) : CreateEquation([e3x1, e3x2, e3x3]);
-        eqst = Equation2String(eq) + "=0";
-        addt = " -> x=";
-        var rtt = is4 ? Equat4_Formula(eq).OrderBy(x => x.Magnitude).ToArray() : Equat3_Formula(eq).OrderBy(x => x.Magnitude).ToArray();
-        rts = ComplexArray2StringSimple(rtt, 5);
-        time = $" (total:{(DateTime.Now - stt).TotalMilliseconds}ms)";
+        var eq = CreateEquation([eq3_r1, eq3_r2, eq3_r3]);
+        eq3_c1 = eq[0];
+        eq3_c2 = eq[1];
+        eq3_c3 = eq[2];
+        eq3_c4 = eq[3];
+    }
+
+    private void Cal3Solve()
+    {
+        var rts = Equat3_Formula([eq3_c1, eq3_c2, eq3_c3, eq3_c4]);
+        var rtsst = ComplexArray2StringSimple(rts, calDigit);
+        eq3_ans = rtsst.Replace(",", ", ");
+    }
+
+    private void Cal3MakeSolve()
+    {
+        Cal3Make();
+        Cal3Solve();
+    }
+
+
+    private void Cal4Make()
+    {
+        var eq = CreateEquation([eq4_r1, eq4_r2, eq4_r3, eq4_r4]);
+        eq4_c1 = eq[0];
+        eq4_c2 = eq[1];
+        eq4_c3 = eq[2];
+        eq4_c4 = eq[3];
+        eq4_c5 = eq[4];
+    }
+
+    private void Cal4Solve()
+    {
+        var rts = Equat4_Formula([eq4_c1, eq4_c2, eq4_c3, eq4_c4, eq4_c5]);
+        var rtsst = ComplexArray2StringSimple(rts, calDigit);
+        eq4_ans = rtsst.Replace(",", ", ");
+    }
+
+    private void Cal4MakeSolve()
+    {
+        Cal4Make();
+        Cal4Solve();
     }
 
 }

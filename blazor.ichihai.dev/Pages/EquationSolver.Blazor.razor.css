@@ -1,23 +1,50 @@
-﻿body {
-
+﻿html, body {
+    max-width: 100%;
 }
 
-.rootInput {
-    width: 50px;
+
+.calMain {
+    display: flex;
 }
 
-button.solve {
+.cal-3,
+.cal-4 {
+    width: 50%;
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid black; 
+}
+
+@media screen and (max-width: 640px) {/*狭かったら縦に*/
+    .calMain {
+        display: inline;
+    }
+
+    .cal-3,
+    .cal-4 {
+        width: 100%;
+    }
+}
+
+input {
     width: 100px;
-    height: 50px;
 }
 
-input.is4 {
-    width: 30px;
-    height: 30px;
-    transform: translate(0, 10px);
+.math {
+    margin-left: 4px;
+    font-family: "STIX Two Text";
+    font-size: 1.4em;
 }
 
-span.is4text {
-    font-size: 150%;
-    margin-right: 10px;
+h2 {
+    padding-bottom: 4px;
+    border-bottom: 1px solid #00000088;
+}
+
+.cal-3-make, .cal-3-solve, .cal-4-make, .cal-4-solve {
+    padding: 10px 0;
+}
+button {
+    margin: 2px;
+    font-size: 1.5em;
 }
