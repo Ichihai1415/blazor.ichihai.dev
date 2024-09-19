@@ -1,0 +1,14 @@
+﻿html, body {
+    max-width: 100%;
+}
+
+
+.math {
+    margin-left: 4px;
+    font-family: "STIX Two Text";
+    font-size: 1.4em;
+}
+
+input {
+    width: 100px;
+}

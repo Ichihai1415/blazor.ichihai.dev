@@ -1,0 +1,76 @@
+﻿@page "/integral/xex"
+
+<PageTitle>Equation Solver in Blazor</PageTitle>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script id="MathJax-script"
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+            async></script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=STIX+Two+Text&display=swap');
+    </style>
+</head>
+
+<p>
+    数式表示にMathJax (<a href="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js</a>) 、
+    一部の数字の表示にSTIX Two Text (<a href="https://fonts.google.com/specimen/STIX+Two+Text">https://fonts.google.com/specimen/STIX+Two+Text</a>) を使用しています。
+</p>
+<br />
+<br />
+↓が正しく表示されない場合ページを再読み込みしてください。<br />
+<span>
+    \( \displaystyle \int {x^n e^x dx} = \left\{ \sum_{k=0}^{n}\left(-1\right)^{n-k} \frac{n!}{k!}x^k \right\} e^x + C \) (<span class="math">C</span>は積分定数)
+</span>
+<div class="cal-xnex">
+    <span class="math-js">\(n=\)</span>
+    <input class="rootInput"
+           type="number"
+           @bind="n1"
+           min="1"
+           aria-label="n1" /><br />
+    <button @onclick="Solve1">解く</button><br />
+    <span class="math">
+        @ans1
+    </span>
+
+</div>
+
+@code{
+    private int n1 = 1;
+    private string ans1 = "";
+
+    private void Solve1()
+    {
+        var ans_tmp = "(";
+        for (int k = n1; k >= 0; k--)
+        {
+            if (k != n1)
+                ans_tmp += (n1 - k) % 2 == 0 ? "+" : "-" ;
+            var c_tmp = NFdRF(n1, k).ToString();
+            if (k == 0 || c_tmp != "1")
+                ans_tmp += c_tmp;
+            if (k != 0)
+                ans_tmp += "x";
+            if (k > 1)
+                ans_tmp += "^" + k.ToString();
+
+        }
+        ans_tmp += ")e^x+C (Cは積分定数)";
+        ans1 = ans_tmp;
+    }
+
+    /// <summary>
+    /// n!/r!を求めます。
+    /// </summary>
+    /// <param name="n"></param>
+    /// <param name="r"></param>
+    private static long NFdRF(int n, int r)
+    {
+        long value = 1;
+        var i = 0;
+        for(int k = n; i < (n - r); k--, i++)
+            value *= k;
+        return value;
+    }
+
+}
